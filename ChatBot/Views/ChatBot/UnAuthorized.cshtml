@@ -1,0 +1,19 @@
+﻿@model ChatBot.Models.UnAuthroizedModel
+
+@if(Model.Duplicate != null)
+{
+    <h1 class="duplicate">Duplicate Chats Is Not Allowed..</h1>
+}
+@if(Model.HistoryExists == 0)
+{
+    <h1 class="duplicate">Chat Request History Is Not Found..</h1>
+}
+
+
+
+<style>
+    .duplicate{
+        text-align: center;
+        color: red;
+    }
+</style>

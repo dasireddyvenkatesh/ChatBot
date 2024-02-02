@@ -1,0 +1,75 @@
+﻿@model List<ChatBot.Models.ChatHistoryModel>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat History</title>
+    <link rel="stylesheet" href="~/css/select2.min.css" />
+    <link rel="stylesheet" href="~/css/UserChatHistory.css" />
+</head>
+<body>
+    <div id="container">
+        <h1 id="headContent">
+            <button id="backButton" onclick="location.href='@Url.Action("ChatBotInital")'">&#10094;</button>
+            <span style="margin-top:12px">Chat History</span>
+            <button id="newChatButton" title="New Chat" onclick="showPopup()">&#43;</button>
+
+        </h1>
+
+        <ul id="chat-History">
+            @foreach (var chat in Model)
+            {
+                <li id="@chat.FromUserId,@chat.ToUserId">
+                    <a href="@Url.Action("ChatDetails", "ChatBot", new { fromUserId = chat.FromUserId, toUserId = chat.ToUserId })">
+                        <h2>@chat.UserName</h2>
+                        <span id="chat-LastMessage" style="font-weight: @(chat.UnreadMessages > 0 ? "bold" : "normal")">@chat.Message</span>
+                        @if (!string.IsNullOrEmpty(chat.UserPhoto)) 
+                        {
+                            <img id="userPhoto" src="data:image/png;base64,@chat.UserPhoto" alt="Popup Image">
+                        }
+                        <small title="UnreadMessageCount" id="unread-Messages" class="@(chat.UnreadMessages > 0 ? "unread-Messages" : "")">
+                            @if (chat.UnreadMessages > 0)
+                            {
+                                @chat.UnreadMessages
+                            }
+                        </small>
+                        <small id="LastStatus">@chat.LastStatus</small> 
+                        <input type="hidden" id="lastMessageId" value="@chat.LastMessageId">
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div id="popupContainer">
+        <div id="popupContent">
+            <span id="closePopup" onclick="closePopup()">&#10006;</span>
+            <h2>New Chat</h2>
+            <select id="selectDropdown" class="dropdownSelection" autocomplete="on">
+                @if(Model.First().ExistingUsers.Count > 0)
+                {
+                    <option value="" disabled selected>Select an option</option>
+                    @foreach (var chat in Model.First().ExistingUsers)
+                    {
+                        <option value="@chat.Key">@chat.Value</option>
+                    }
+                }
+                else
+                {
+                    <option value="" disabled selected>No New Members To Chat</option>
+                }
+
+
+            </select>
+            <button id="submitButton" onclick="redirectToPage()">Submit</button>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/select2.min.js"></script>
+    <script>
+        const fromUserId = @Model.First().FromUserId;
+    </script>
+    <script src="~/js/UserChatHistory.js"></script>
+</body>
+</html>

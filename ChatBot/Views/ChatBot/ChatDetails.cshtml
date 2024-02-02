@@ -1,0 +1,64 @@
+﻿@model List<ChatBot.Models.ChatDetailsModel>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome To the Chat</title>
+    <link rel="stylesheet" href='~/css/ChatDetails.css'>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/SignalR/signalr.min.js"></script>
+</head>
+<body>
+    <div id="chatContainer">
+        <div id="loader"></div>
+        <div id="chatInfo">
+            <button class="backButton" onclick="location.href='@Url.Action("UserChatHistory", new { userName = Model.First().LoginUserName })'">&#10094;</button>
+            <div id="chatUserAndStatusContainer">
+                <span id="chatUserName" class="chatUserName">@Model.First().UserName</span>
+                <span id="chatLastSeen" class="chatUserName"></span>
+            </div>
+            <span class="activeStatus" id="indicator">&emsp;&emsp;&nbsp;&nbsp;&nbsp;</span>
+        </div>
+        <ul id="messagesList"></ul>
+        <div id="inputContainer">
+            <label for="imageInput" class="custom-file-upload">
+                <img src='~/Images/ImageIcon.png' alt="Image Icon" class="icon">
+                <input type="file" id="imageInput" accept="image/*">
+            </label>
+            <input type="text" id="messageInput" placeholder="Type a message" />
+            <button disabled id="sendButton">Send</button>
+        </div>
+    </div>
+    <div id="popupContainer" class="popup-container">
+        <div id="popupContent" class="popup-content">
+            <span title="close" id="closePopup" onclick="closePopup()">&#10006;</span>
+            <h2 style="font-size:larger">Message Details</h2>
+            <p id="deliveryStatus"></p>
+            <p id="seenStatus"></p>
+            <input type="hidden" id="popupMessageId" />
+            <button title="Delete" id="deleteButton" onclick="deleteMessage()">&#11119;</button>
+        </div>
+    </div>
+    <div id="imagePopup" class="image-popup">
+        <div class="popup-content-image">
+            <div class="popup-header">
+                <span class="popup-title">Image</span>
+                <span class="popup-close" id="popup-close" onclick="closeImagePopup()">&#10006;</span>
+            </div>
+            <img id="popupImage" class="popup-image" src="" alt="Popup Image">
+            <div class="popup-buttons">
+                <button title="Download" onclick="downloadImage()">&darr;</button>
+                <input type="hidden" id="base64ImageSource" />
+                <button title="Delete" onclick="deleteImage()">&#11119;</button>
+                <input type="hidden" id="popupDeleteMessageId" />
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    var model = @Html.Raw(Json.Serialize(Model));
+    const fromUser = @Model.First().FromUserId;
+    const toUser = @Model.First().ToUserId;
+</script>
+<script src="~/js/ChatDetails.js"></script>

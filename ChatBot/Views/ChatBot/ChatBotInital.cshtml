@@ -1,0 +1,34 @@
+﻿@model string
+
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="~/css/ChatBotIntial.css" />
+</head>
+<body>
+    <div id="userStatus">
+        <h1>Welcome!</h1>
+        <form action="/UserChatHistory" method="post" onsubmit="return validateForm()">
+            <input type="text" id="username" name="userName" placeholder="Enter UserId" />
+            <button type="submit">Login</button>
+            <p class="error-message" id="errorMessage" style="display: none;">Please enter a UserId.</p>
+
+            @if (!string.IsNullOrEmpty(Model))
+            {
+                <p class="error-message" id="errorMessage">@Model</p>
+                <button onclick="showCreateUserPopup()">Create New User</button>
+            }
+        </form>
+    </div>
+
+    <div id="createUserPopup">
+        <span title="Close" class="close-button" onclick="closeCreateUserPopup()">&#10006;</span>
+        <p>Enter New UserName</p>
+        <input type="text" id="newUsername" placeholder="Enter UserId" />
+        <button onclick="validateAndCreateUser()">Create</button>
+        <p class="error-message" id="createUserErrorMessage" style="display: none;">Please create a UserId With Min 3 Char.</p>
+    </div>
+   <script src="~/js/ChatBotInital.js"></script>
+</body>
+</html>
