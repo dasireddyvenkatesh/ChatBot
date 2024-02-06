@@ -17,8 +17,6 @@ namespace ChatBot
 
         public static List<Tuple<int, int, bool>> ActiveUsers = new List<Tuple<int, int, bool>>();
 
-        public static string LoginUserName = string.Empty;
-
         public async Task<string> GetConnectionId(int fromUserId, int toUserId)
         {
             var existingPair = ActiveUsers.FirstOrDefault(x => x.Item1 == fromUserId && x.Item2 == toUserId);
@@ -42,8 +40,7 @@ namespace ChatBot
         }
 
         public void RemoveConnectionId(int fromUserId, int toUserId)
-        {
-
+        {     
             ActiveUsers.Remove(Tuple.Create(fromUserId, toUserId, true));
             ActiveUsers.RemoveAll(x => x.Item1 == fromUserId && x.Item3 == false);
         }

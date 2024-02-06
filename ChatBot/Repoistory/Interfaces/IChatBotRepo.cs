@@ -10,7 +10,7 @@ namespace ChatBot.Repoistory.Interfaces
 
         public Task<int> ValidateUserName(string userName);
 
-        public Task<int> HistoryExists(int fromUserId, int toUserId);
+        public Task<bool> HistoryExists(int fromUserId, int toUserId);
 
         public Task<Dictionary<int, string>> ExistingUsers(string existingChatUsers);
 

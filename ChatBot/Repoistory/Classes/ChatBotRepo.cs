@@ -67,7 +67,7 @@ namespace ChatBot.Repoistory.Classes
             }
         }
 
-        public async Task<int> HistoryExists(int fromUserId, int toUserId)
+        public async Task<bool> HistoryExists(int fromUserId, int toUserId)
         {
             string dbConnection = _configuration.GetConnectionString("DefaultConnection");
 
@@ -77,9 +77,9 @@ namespace ChatBot.Repoistory.Classes
                 dynamicParameters.Add("@fromUserId", fromUserId);
                 dynamicParameters.Add("@toUserId", toUserId);
 
-                int chatUserId = await connection.QueryFirstOrDefaultAsync<int>("HistoryExists", dynamicParameters, commandType: CommandType.StoredProcedure);
+                bool chatHistoryExists = await connection.QueryFirstOrDefaultAsync<bool>("HistoryExists", dynamicParameters, commandType: CommandType.StoredProcedure);
 
-                return chatUserId;
+                return chatHistoryExists;
             }
         }
 

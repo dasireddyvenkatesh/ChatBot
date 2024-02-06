@@ -17,6 +17,8 @@ namespace ChatBot.BusinessLayer.Classes
         {
             var chatDetails = await _chatBotRepo.History(fromUserId, toUserId);
 
+            var loginUserName = await _chatBotRepo.GetUserNameById(fromUserId);
+
             List<ChatDetailsModel> result = new List<ChatDetailsModel>();
 
             var messagesByDate = chatDetails.GroupBy(msg => msg.TimeStamp.Date).ToDictionary(grp => grp.Key, grp => grp.ToList());
@@ -28,7 +30,7 @@ namespace ChatBot.BusinessLayer.Classes
                     FromUserId = fromUserId,
                     ToUserId = toUserId,
                     UserName = await _chatBotRepo.GetUserNameById(toUserId),
-                    LoginUserName = ChatHub.LoginUserName
+                    LoginUserName = loginUserName
                 };
 
                 result.Add(chatDetailsModel);
@@ -44,7 +46,7 @@ namespace ChatBot.BusinessLayer.Classes
                 detailsModel.MessageDate = msgDate.Key.ToString("ddd, dd MMM");
                 detailsModel.FromUserId = fromUserId; detailsModel.ToUserId = toUserId;
                 detailsModel.UserName = msgDate.Value.First().UserName;
-                detailsModel.LoginUserName = ChatHub.LoginUserName;
+                detailsModel.LoginUserName = loginUserName;
 
                 foreach (var msg in msgDate.Value)
                 {

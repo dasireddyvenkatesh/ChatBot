@@ -1,13 +1,48 @@
 ﻿@model ChatBot.Models.UnAuthroizedModel
 
-@if(Model.Duplicate != null)
+<script>
+    function showMessageAndRedirect() {
+
+        setTimeout(function () {
+            var element = document.getElementById("duplicate");
+            element.textContent = "Redirecting To Login Page..."
+        }, 2000);
+
+        setTimeout(function () {
+            window.location.href = "https://localhost:7217/";
+        }, 5000);
+    }
+</script>
+
+@if(Model.Duplicate)
 {
-    <h1 class="duplicate">Duplicate Chats Is Not Allowed..</h1>
+    <h1 id="duplicate" class="duplicate">Duplicate Chats Is Not Allowed..</h1>
+    <script>
+        showMessageAndRedirect();
+    </script>
 }
-@if(Model.HistoryExists == 0)
+@if(!Model.HistoryExists)
 {
-    <h1 class="duplicate">Chat Request History Is Not Found..</h1>
+    <h1 id="duplicate" class="duplicate">Chat Request History Is Not Found..</h1>
+    <script>
+        showMessageAndRedirect();
+    </script>
 }
+@if (!Model.UnAuthroizeEntry)
+{
+    <h1 id="duplicate" class="duplicate">Please Login With UserName To Acccess The Chat..</h1>
+    <script>
+        showMessageAndRedirect();
+    </script>
+}
+@if (Model.SessionExists)
+{
+    <h1 id="duplicate" class="duplicate">Duplicate UserChatHistory Sessions Are Not Allowed..</h1>
+    <script>
+        showMessageAndRedirect();
+    </script>
+}
+
 
 
 

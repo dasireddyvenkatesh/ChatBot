@@ -82,11 +82,16 @@ namespace ChatBot.Controllers
         [Route("UserChatHistory")]
         public async Task<IActionResult> UserChatHistory(string userName)
         {
+            if (string.IsNullOrEmpty(userName))
+            {
+                return View("UnAuthorized", new UnAuthroizedModel { UnAuthroizeEntry = false });
+            }
+
             var history = await _chatHistory.History(userName);
 
             if (history.Count == 0)
             {
-               return View("ChatBotInital", "Enter Valid Username");
+                return View("ChatBotInital", "Enter Valid Username");
             }
 
             return View(history);
@@ -95,9 +100,9 @@ namespace ChatBot.Controllers
         [Route("ChatDetails")]
         public async Task<IActionResult> ChatDetails(int fromUserId, int toUserId, bool newUser = false)
         {
-            UnAuthroizedModel unAuthroizedModel = await _insertAndDuplicateCheck.DuplicateCheck(fromUserId, toUserId, newUser);    
+            UnAuthroizedModel unAuthroizedModel = await _insertAndDuplicateCheck.DuplicateCheck(fromUserId, toUserId, newUser);
 
-            if (unAuthroizedModel.Duplicate != null || unAuthroizedModel.HistoryExists == 0)
+            if (unAuthroizedModel.Duplicate || (!unAuthroizedModel.HistoryExists))
             {
                 return View("UnAuthorized", unAuthroizedModel);
             }

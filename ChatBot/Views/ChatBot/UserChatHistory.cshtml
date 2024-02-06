@@ -33,7 +33,7 @@
                                 @chat.UnreadMessages
                             }
                         </small>
-                        <small id="LastStatus">@chat.LastStatus</small> 
+                        <small id="LastStatus" style="color: @(chat.LastStatus == "Online" ? "green" : "maroon")">@chat.LastStatus</small>
                         <input type="hidden" id="lastMessageId" value="@chat.LastMessageId">
                     </a>
                 </li>

@@ -19,8 +19,6 @@ namespace ChatBot.BusinessLayer.Classes
         {
             var histories = await _chatBot.GetHistory(userName);
 
-            ChatHub.LoginUserName = userName;
-
             if (histories.Count == 0)
             {
                 int userId = await _chatBot.ValidateUserName(userName);
@@ -32,6 +30,7 @@ namespace ChatBot.BusinessLayer.Classes
 
                 histories.Add(new ChatHistoryModel());
                 histories.First().FromUserId = await _chatBot.GetIdByUsername(userName);
+
             }
 
             foreach(var history in histories)
