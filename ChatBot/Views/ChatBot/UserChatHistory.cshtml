@@ -20,7 +20,7 @@
             @foreach (var chat in Model)
             {
                 <li id="@chat.FromUserId,@chat.ToUserId">
-                    <a href="@Url.Action("ChatDetails", "ChatBot", new { fromUserId = chat.FromUserId, toUserId = chat.ToUserId })">
+                    <a onclick="submitChatForm(@chat.FromUserId, @chat.ToUserId)">
                         <h2>@chat.UserName</h2>
                         <span id="chat-LastMessage" style="font-weight: @(chat.UnreadMessages > 0 ? "bold" : "normal")">@chat.Message</span>
                         @if (!string.IsNullOrEmpty(chat.UserPhoto)) 
@@ -71,5 +71,6 @@
         const fromUserId = @Model.First().FromUserId;
     </script>
     <script src="~/js/UserChatHistory.js"></script>
+    <script src="~/js/removeText.js"></script>
 </body>
 </html>

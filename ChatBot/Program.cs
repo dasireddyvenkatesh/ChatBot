@@ -3,12 +3,18 @@ using ChatBot.BusinessLayer.Classes;
 using ChatBot.BusinessLayer.Interfaces;
 using ChatBot.Repoistory.Classes;
 using ChatBot.Repoistory.Interfaces;
+using Microsoft.AspNetCore.Http.Connections;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.ClientTimeoutInterval = TimeSpan.FromHours(4);
+    options.HandshakeTimeout = TimeSpan.FromHours(1);
+    options.KeepAliveInterval = TimeSpan.FromHours(2);
+});
 
 builder.Services.AddTransient<ILastSeenStatus, LastSeenStatus>();
 builder.Services.AddTransient<IGetUserChatHistory, GetUserChatHistory>();
@@ -33,14 +39,16 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-//app.MapControllers();
-
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller=ChatBot}/{action=ChatBotInital}/{id?}");
-    endpoints.MapHub<ChatHub>("/ChatHub");
+    endpoints.MapHub<ChatHub>("/ChatHub", options =>
+    {
+        options.Transports = HttpTransportType.WebSockets | HttpTransportType.LongPolling;
+        options.TransportSendTimeout = TimeSpan.FromDays(1);
+    });
 });
 
 app.Run();

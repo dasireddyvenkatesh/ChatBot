@@ -30,7 +30,16 @@ form {
 }
 
 input[type="text"] {
-    width: calc(100% - 24px);
+    width: 50%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    text-align: center;
+}
+
+input[type="password"] {
+    width: 50%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
@@ -39,6 +48,7 @@ input[type="text"] {
 }
 
 button {
+    width:50%;
     padding: 10px 20px;
     background-color: #007bff;
     color: white;
@@ -75,7 +85,7 @@ button {
 }
 
 #createUserPopup input {
-    width: calc(100% - 24px);
+    width: 50%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;

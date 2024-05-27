@@ -172,7 +172,7 @@
     display : flex;
 }
 
-#username {
+#username, #password {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -184,11 +184,11 @@
     display: inline-block;
 }
 
-    #username::placeholder {
+    #username, #password::placeholder {
         color: #aaa;
     }
 
-    #username:focus {
+    #username, #password:focus {
         border-color: #007bff;
     }
 

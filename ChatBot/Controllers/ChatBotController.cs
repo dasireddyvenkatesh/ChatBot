@@ -3,6 +3,7 @@ using ChatBot.Models;
 using ChatBot.Repoistory.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Net.NetworkInformation;
 
 namespace ChatBot.Controllers
 {
@@ -36,13 +37,24 @@ namespace ChatBot.Controllers
         public IActionResult ChatBotInital()
         {
 
+            //string userAgent = Request.Headers["sec-ch-ua-platform"].ToString().Trim('"', '\\');
+
+            //var networkAvailable = NetworkInterface.GetIsNetworkAvailable();
+
+            //var networkInterface = NetworkInterface.GetAllNetworkInterfaces();
+
+            //PhysicalAddress physicalAddress = networkInterface.Where(x =>x.Description == "Microsoft Wi-Fi Direct Virtual Adapter").First().GetPhysicalAddress();
+
+            //string macAddress = BitConverter.ToString(physicalAddress.GetAddressBytes());
+
+
             return View();
         }
 
         [Route("NewUserRegister")]
-        public async Task<int> NewUserRegister(string newUserName)
+        public async Task<int> NewUserRegister(string newUserName, string newPassword)
         {
-            int newUserId = await _chatBotRepo.NewUser(newUserName);
+            int newUserId = await _chatBotRepo.NewUser(newUserName, newPassword);
 
             return newUserId;
         }
@@ -66,9 +78,14 @@ namespace ChatBot.Controllers
         [Route("LastMessageStatus")]
         public async Task<IActionResult> LastMessageStatus(int fromUserId, int toUserId, int lastMessageId)
         {
+            await _chatBotRepo.UpdateLastSeen(fromUserId);
+
             var lastMessageDetails = await _chatBotRepo.LastMessageStatus(fromUserId, toUserId, lastMessageId);
 
-            bool statusOnline = ChatHub.ActiveUsers.Where(x => x.Item1 == toUserId && x.Item2 == fromUserId && x.Item3 == true).Any();
+            DateTime fromUserStatus = await _chatBotRepo.GetLastSeen(fromUserId);
+            DateTime toUserStatus = await _chatBotRepo.GetLastSeen(toUserId);
+
+            bool statusOnline = fromUserStatus >= DateTime.Now.AddSeconds(-10) && toUserStatus >= DateTime.Now.AddSeconds(-10);
 
             if (statusOnline)
             {
@@ -80,18 +97,18 @@ namespace ChatBot.Controllers
         }
 
         [Route("UserChatHistory")]
-        public async Task<IActionResult> UserChatHistory(string userName)
+        public async Task<IActionResult> UserChatHistory(string userName, string passWord, bool loggedInUser = false)
         {
-            if (string.IsNullOrEmpty(userName))
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(passWord))
             {
                 return View("UnAuthorized", new UnAuthroizedModel { UnAuthroizeEntry = false });
             }
 
-            var history = await _chatHistory.History(userName);
+            var history = await _chatHistory.History(userName, passWord, loggedInUser);
 
             if (history.Count == 0)
             {
-                return View("ChatBotInital", "Enter Valid Username");
+                return View("ChatBotInital", "Enter Valid Username and Password");
             }
 
             return View(history);

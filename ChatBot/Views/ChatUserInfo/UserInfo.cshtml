@@ -1,0 +1,30 @@
+﻿@model ChatBot.Models.UserInfoModel
+
+<!-- Views/Home/Index.cshtml -->
+@{
+    ViewData["Title"] = "WebRTC Example";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Example</title>
+</head>
+<body>
+    <h1>Welcome to WebRTC Example</h1>
+    <video id="localVideo" autoplay playsinline></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+    <button id="startButton">Start Call</button>
+    <button id="hangupButton">End Call</button>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/UserInfo.js"></script>
+    <script src="~/lib/SignalR/signalr.min.js"></script>
+    <script>
+        const fromUserId = @Model.FromUserId;
+        const toUserId = @Model.ToUserId;
+    </script>
+</body>
+</html>

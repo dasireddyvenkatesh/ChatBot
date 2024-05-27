@@ -15,25 +15,36 @@ namespace ChatBot.BusinessLayer.Classes
             _lastSeenStatus = lastSeenStatus;
         }
 
-        public async Task<List<ChatHistoryModel>> History(string userName)
+        public async Task<List<ChatHistoryModel>> History(string userName, string passWord, bool loggedInUser)
         {
+            if (!loggedInUser)
+            {
+
+                string? userPw = await _chatBot.ValidateUserName(userName);
+
+                if (string.IsNullOrEmpty(userPw))
+                {
+                    return new List<ChatHistoryModel>();
+                }
+                else
+                {
+                    bool isValid = BCrypt.Net.BCrypt.Verify(passWord, userPw);
+
+                    if (!isValid) { return new List<ChatHistoryModel>(); }
+                }
+            }
+
             var histories = await _chatBot.GetHistory(userName);
 
             if (histories.Count == 0)
             {
-                int userId = await _chatBot.ValidateUserName(userName);
-
-                if (userId == 0)
-                {
-                    return histories;
-                }
 
                 histories.Add(new ChatHistoryModel());
                 histories.First().FromUserId = await _chatBot.GetIdByUsername(userName);
 
             }
 
-            foreach(var history in histories)
+            foreach (var history in histories)
             {
                 history.LastStatus = _lastSeenStatus.Status(history.LastSeen);
                 history.LastMessageId = await _chatBot.LastMessageId(history.FromUserId, history.ToUserId);

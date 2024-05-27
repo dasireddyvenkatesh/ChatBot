@@ -32,7 +32,7 @@ namespace ChatBot.Repoistory.Classes
 
         }
 
-        public async Task<int> NewUser(string userName)
+        public async Task<int> NewUser(string userName, string passWord)
         {
             if (!string.IsNullOrEmpty(userName) && userName.Length >= 3)
             {
@@ -42,6 +42,7 @@ namespace ChatBot.Repoistory.Classes
                 {
                     DynamicParameters dynamicParameters = new DynamicParameters();
                     dynamicParameters.Add("@userName", userName);
+                    dynamicParameters.Add("@passWord", BCrypt.Net.BCrypt.HashPassword(passWord));
 
                     int userId = await connection.QueryFirstOrDefaultAsync<int>("NewUserRegister", dynamicParameters, commandType: CommandType.StoredProcedure);
 
@@ -52,7 +53,7 @@ namespace ChatBot.Repoistory.Classes
             return 0;
         }
 
-        public async Task<int> ValidateUserName(string userName)
+        public async Task<string?> ValidateUserName(string userName)
         {
             string dbConnection = _configuration.GetConnectionString("DefaultConnection");
 
@@ -61,9 +62,9 @@ namespace ChatBot.Repoistory.Classes
                 DynamicParameters dynamicParameters = new DynamicParameters();
                 dynamicParameters.Add("@userName", userName);
 
-                int userId = await connection.QueryFirstOrDefaultAsync<int>("ValidateUserName", dynamicParameters, commandType: CommandType.StoredProcedure);
+                string? userPw = await connection.QueryFirstOrDefaultAsync<string>("ValidateUserName", dynamicParameters, commandType: CommandType.StoredProcedure);
 
-                return userId;
+                return userPw;
             }
         }
 
@@ -112,6 +113,20 @@ namespace ChatBot.Repoistory.Classes
                 var result = await connection.QueryFirstAsync<DateTime>("LastSeenStatus", dynamicParameters, commandType: CommandType.StoredProcedure);
 
                 return result;
+            }
+        }
+
+        public async Task UpdateLastSeen(int userId)
+        {
+            string dbConnection = _configuration.GetConnectionString("DefaultConnection");
+
+            using (SqlConnection connection = new SqlConnection(dbConnection))
+            {
+                DynamicParameters dynamicParameters = new DynamicParameters();
+                dynamicParameters.Add("@messageId", userId);
+
+                await connection.ExecuteAsync("UpdateLastSeenStatus", dynamicParameters, commandType: CommandType.StoredProcedure);
+
             }
         }
 

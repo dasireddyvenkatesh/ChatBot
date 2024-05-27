@@ -15,53 +15,19 @@ namespace ChatBot
             _configuration = configuration;
         }
 
-        public static List<Tuple<int, int, bool>> ActiveUsers = new List<Tuple<int, int, bool>>();
-
-        public async Task<string> GetConnectionId(int fromUserId, int toUserId)
+        public async Task<bool> GetUserStatus(int toUserId)
         {
-            var existingPair = ActiveUsers.FirstOrDefault(x => x.Item1 == fromUserId && x.Item2 == toUserId);
+            DateTime userLastStatus = await GetLastSeen(toUserId);
 
-            if (existingPair == null)
-            {
-                ActiveUsers.AddRange(await GetLinkedUsersIds(fromUserId, toUserId));
-            }
-            else
-            {
-                ActiveUsers[ActiveUsers.IndexOf(existingPair)] = Tuple.Create(fromUserId, toUserId, true);
-            }
-
-            var distinctList = ActiveUsers.GroupBy(t => new { t.Item1, t.Item2 })
-                                .Select(group => group.OrderByDescending(t => t.Item3).First()).ToList();
-
-            ActiveUsers = new List<Tuple<int, int, bool>>();
-            ActiveUsers.AddRange(distinctList);
-
-            return Context.ConnectionId;
+            return userLastStatus >= DateTime.Now.AddSeconds(-10);
         }
 
-        public void RemoveConnectionId(int fromUserId, int toUserId)
-        {     
-            ActiveUsers.Remove(Tuple.Create(fromUserId, toUserId, true));
-            ActiveUsers.RemoveAll(x => x.Item1 == fromUserId && x.Item3 == false);
-        }
-
-        public bool GetUserStatus(int toUserId)
+        public async Task<bool> GetUserActiveStatus(int fromUserId, int toUserId)
         {
-            return ActiveUsers.Where(x => x.Item1 == toUserId && x.Item3 == true).Any();
-        }
+            DateTime fromUserStatus = await GetLastSeen(fromUserId);
+            DateTime toUserStatus = await GetLastSeen(toUserId);
 
-        public bool GetUserActiveStatus(int fromUserId, int toUserId)
-        {
-            bool pair1 = ActiveUsers.Where(x => x.Item1 == fromUserId && x.Item2 == toUserId && x.Item3 == true).Any();
-            bool pair2 = ActiveUsers.Where(x => x.Item1 == toUserId && x.Item2 == fromUserId && x.Item3 == true).Any();
-
-            if (pair1 && pair2)
-            {
-                return true;
-            }
-
-            return false;
-
+            return fromUserStatus >= DateTime.Now.AddSeconds(-10) && toUserStatus >= DateTime.Now.AddSeconds(-10);
         }
 
         public async Task<string> LastSeenStatus(int userId)
@@ -142,21 +108,6 @@ namespace ChatBot
 
                 await connection.ExecuteAsync("UpdateMessageStatus", dynamicParameters, commandType: CommandType.StoredProcedure);
 
-            }
-        }
-
-        private async Task<List<Tuple<int, int, bool>>> GetLinkedUsersIds(int fromUserId, int toUserId)
-        {
-            string dbConnection = _configuration.GetConnectionString("DefaultConnection");
-
-            using (SqlConnection connection = new SqlConnection(dbConnection))
-            {
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                dynamicParameters.Add("@UserId", fromUserId);
-
-                var history = await connection.QueryAsync<(int, int)>("LinkedUsersIds", dynamicParameters, commandType: CommandType.StoredProcedure);
-
-                return history.Select(tuple => new Tuple<int, int, bool>(tuple.Item1, tuple.Item2, tuple.Item1 == fromUserId && tuple.Item2 == toUserId)).ToList();
             }
         }
 

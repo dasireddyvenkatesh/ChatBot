@@ -13,24 +13,22 @@ const statusIndicators = {
 };
 
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/chatHub")
+    .withUrl("/chatHub", { transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling })
+    .withAutomaticReconnect()
     .build();
 
-connection.start().then(function () {
-    connection.invoke('GetConnectionId', fromUser, toUser);
-});
+connection.serverTimeoutInMilliseconds = 6000000; 
+connection.keepAliveIntervalInMilliseconds = 3000000;
 
-window.addEventListener('unload', function (event) {
-    connection.invoke('RemoveConnectionId', fromUser, toUser);
-});
+connection.start();
 
-setInterval(function () {
-    connection.invoke('GetUserStatus', toUser).then(function (data) {
-        LastSeenStatusUpdate(data, sentStatus);       
+setInterval(async function () {
+    await connection.invoke('GetUserStatus', toUser).then(function (data) {
+        LastSeenStatusUpdate(data, sentStatus);
         deliveredStatus = data;
     });
 
-    connection.invoke('GetUserActiveStatus', fromUser, toUser).then(function (data) {
+    await connection.invoke('GetUserActiveStatus', fromUser, toUser).then(function (data) {
         sentStatus = data;
         LastSeenStatusUpdate(deliveredStatus, data);
         if (data && updateStatus) {
@@ -42,9 +40,11 @@ setInterval(function () {
 
 }, 5000);
 
-connection.onclose(() => {
-    connection.start();
-});
+setInterval(async () => {
+    if (connection.state === signalR.HubConnectionState.Disconnected) {
+        await connection.start();
+    }
+}, 3000);
 
 async function LastSeenStatusUpdate(deliveredStatus, sentStatus) {
     if (!(deliveredStatus && sentStatus)) {
@@ -65,8 +65,10 @@ async function LastSeenStatusUpdate(deliveredStatus, sentStatus) {
         usernameStatus.textContent = statusIndicators.Online.text;
         usernameStatus.style.fontSize = "11px";
         usernameStatus.style.color = statusIndicators.Online.color;
-        await connection.invoke('UpdateSeenStatus', toUser);
+        
     }
+
+    await connection.invoke('UpdateSeenStatus', fromUser);
 }
 
 function sendMessage() {
@@ -114,7 +116,32 @@ messageInput.addEventListener('keypress', function (event) {
 messageInput.addEventListener('input', function () {
     sendButton.disabled = !messageInput.value.trim();
 });
+function submitForm() {
+    // Create a form element
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = '/UserChatHistory';
 
+    // Function to create hidden input field
+    function createHiddenInput(name, value) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        return input;
+    }
+
+    // Create hidden input fields for parameters
+    form.appendChild(createHiddenInput('userName', model[0].loginUserName));
+    form.appendChild(createHiddenInput('passWord', 'passWord')); 
+    form.appendChild(createHiddenInput('loggedInUser', 'true'));
+
+    // Append the form to the document body
+    document.body.appendChild(form);
+
+    // Submit the form
+    form.submit();
+}
 function toggleMessageInput() {
     const imageInput = document.getElementById("imageInput");
     const messageInput = document.getElementById("messageInput");
@@ -258,7 +285,7 @@ function downloadImage() {
 
 async function deleteImage() {
     const messageId = parseInt(document.getElementById("popupDeleteMessageId").value, 10);
-    //await connection.invoke('DeleteMessage', messageId);
+    await connection.invoke('DeleteMessage', messageId);
     deleteMessageLiById(messageId.toString());
     closeImagePopup();
 }
@@ -346,7 +373,7 @@ function closePopup() {
 
 async function deleteMessage() {
     const messageId = parseInt(document.getElementById("popupMessageId").value, 10);
-    //await connection.invoke('DeleteMessage', messageId);
+    await connection.invoke('DeleteMessage', messageId);
     deleteMessageLiById(messageId.toString());
     closePopup();
 }

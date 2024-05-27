@@ -4,6 +4,6 @@ namespace ChatBot.BusinessLayer.Interfaces
 {
     public interface IGetUserChatHistory
     {
-        public Task<List<ChatHistoryModel>> History(string userName);
+        public Task<List<ChatHistoryModel>> History(string userName, string passWord, bool loggedInUser);
     }
 }
