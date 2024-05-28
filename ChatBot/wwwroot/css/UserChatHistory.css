@@ -158,7 +158,6 @@ a {
     width: 100%;
     text-align: center;
     max-height: 100vh;
-    overflow-y: auto;
 }
 
 ::-webkit-scrollbar {
