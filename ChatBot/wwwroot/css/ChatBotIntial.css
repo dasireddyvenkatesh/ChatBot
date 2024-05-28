@@ -64,7 +64,8 @@ button {
 .error-message {
     color: red;
     margin-top: 10px;
-    font-size:small;
+    font-size: small;
+    margin-bottom: 0px;
 }
 
 #createUserPopup {
