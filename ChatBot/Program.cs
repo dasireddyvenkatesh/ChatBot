@@ -3,12 +3,26 @@ using ChatBot.BusinessLayer.Classes;
 using ChatBot.BusinessLayer.Interfaces;
 using ChatBot.Repoistory.Classes;
 using ChatBot.Repoistory.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Connections;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+{
+    options.LoginPath = "/Public/ChatBotInital";
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+});
+
+builder.Services.AddSession(session =>
+{
+    session.IdleTimeout = TimeSpan.FromDays(30);
+    session.Cookie.HttpOnly = true;
+    session.Cookie.IsEssential = true;
+});
+
 builder.Services.AddSignalR(options =>
 {
     options.ClientTimeoutInterval = TimeSpan.FromHours(4);
@@ -23,6 +37,12 @@ builder.Services.AddTransient<IUserSaveHistory, UserSaveHistory>();
 builder.Services.AddTransient<IGetChatDetails, GetChatDetails>();
 builder.Services.AddTransient<ICompressImage, CompressImage>();
 builder.Services.AddTransient<IInsertAndDuplicateCheckHistory, InsertAndDuplicateCheckHistory>();
+builder.Services.AddTransient<INewUserRegistration, NewUserRegistration>();
+builder.Services.AddTransient<IRegisterEmail, RegisterEmail>();
+builder.Services.AddTransient<IVerifyEmailOtp, VerifyEmailOtp>();
+builder.Services.AddTransient<IEmailMessage, EmailMessage>();
+builder.Services.AddTransient<IRegisterVerifiedEmail, RegisterVerifiedEmail>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 var app = builder.Build();
 
@@ -37,13 +57,15 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
-        pattern: "{controller=ChatBot}/{action=ChatBotInital}/{id?}");
+        pattern: "{controller=Public}/{action=ChatBotInital}/{id?}");
     endpoints.MapHub<ChatHub>("/ChatHub", options =>
     {
         options.Transports = HttpTransportType.WebSockets | HttpTransportType.LongPolling;

@@ -13,11 +13,9 @@ namespace ChatBot.BusinessLayer.Classes
             _chatBotRepo = chatBotRepo;
         }
 
-        public async Task<List<ChatDetailsModel>> GetChat(int fromUserId, int toUserId)
+        public async Task<List<ChatDetailsModel>> GetChat(int fromUserId, int toUserId, string loginUserName)
         {
             var chatDetails = await _chatBotRepo.History(fromUserId, toUserId);
-
-            var loginUserName = await _chatBotRepo.GetUserNameById(fromUserId);
 
             List<ChatDetailsModel> result = new List<ChatDetailsModel>();
 

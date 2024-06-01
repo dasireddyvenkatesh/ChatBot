@@ -6,11 +6,9 @@ namespace ChatBot.Repoistory.Interfaces
     {
         public Task<List<ChatHistoryModel>> GetHistory(string userName);
 
-        public Task<int> NewUser(string userName, string passWord);
+        public Task<string> NewUser(string userName, string email, string passWord, string deviceIp);
 
         public Task<string?> ValidateUserName(string userName);
-
-        public Task<bool> HistoryExists(int fromUserId, int toUserId);
 
         public Task<Dictionary<int, string>> ExistingUsers(string existingChatUsers);
 
@@ -19,6 +17,10 @@ namespace ChatBot.Repoistory.Interfaces
         public Task<int> LastMessageId(int fromUserId, int toUserId);
 
         public Task<DateTime> GetLastSeen(int userId);
+
+        public Task<bool> UpdateEmailOtp(string email, int emailOtp);
+
+        public Task<string> VerifyEmailOtp(string email, int emailOtp);
 
         public Task UpdateLastSeen(int userId);
 

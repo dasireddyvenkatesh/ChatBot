@@ -116,32 +116,32 @@ messageInput.addEventListener('keypress', function (event) {
 messageInput.addEventListener('input', function () {
     sendButton.disabled = !messageInput.value.trim();
 });
-function submitForm() {
-    // Create a form element
-    var form = document.createElement('form');
-    form.method = 'post';
-    form.action = '/UserChatHistory';
+//function submitForm() {
+//    // Create a form element
+//    var form = document.createElement('form');
+//    form.method = 'post';
+//    form.action = '/UserChatHistory';
 
-    // Function to create hidden input field
-    function createHiddenInput(name, value) {
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        return input;
-    }
+//    // Function to create hidden input field
+//    function createHiddenInput(name, value) {
+//        var input = document.createElement('input');
+//        input.type = 'hidden';
+//        input.name = name;
+//        input.value = value;
+//        return input;
+//    }
 
-    // Create hidden input fields for parameters
-    form.appendChild(createHiddenInput('userName', model[0].loginUserName));
-    form.appendChild(createHiddenInput('passWord', 'passWord')); 
-    form.appendChild(createHiddenInput('loggedInUser', 'true'));
+//    // Create hidden input fields for parameters
+//    form.appendChild(createHiddenInput('userName', model[0].loginUserName));
+//    form.appendChild(createHiddenInput('passWord', 'passWord')); 
+//    form.appendChild(createHiddenInput('loggedInUser', 'true'));
 
-    // Append the form to the document body
-    document.body.appendChild(form);
+//    // Append the form to the document body
+//    document.body.appendChild(form);
 
-    // Submit the form
-    form.submit();
-}
+//    // Submit the form
+//    form.submit();
+//}
 function toggleMessageInput() {
     const imageInput = document.getElementById("imageInput");
     const messageInput = document.getElementById("messageInput");

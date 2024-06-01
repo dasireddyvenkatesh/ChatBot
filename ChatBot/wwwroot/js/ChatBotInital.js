@@ -27,43 +27,90 @@ function showCreateUserPopup() {
 
 function validateAndCreateUser() {
     var newUsername = document.getElementById("newUsername").value;
+    var newEmail = document.getElementById("newEmail").value;
     var newPassword = document.getElementById("newPassword").value;
     var createUserErrorMessage = document.getElementById("createUserErrorMessage");
 
     if ((newUsername === "" || newUsername.length <= 3)) {
         createUserErrorMessage.style.display = "block";
+    } else if (!validateEmail(newEmail)) {
+        createUserErrorMessage.innerText = "Enter a valid email address";
+        createUserErrorMessage.style.display = "block";
     } else if (newPassword === null || newPassword.length <= 5) {
-        document.getElementById("createUserErrorMessage").innerText = "Enter Password Min 5 Charcters";
+        createUserErrorMessage.innerText = "Enter Password Min 5 Charcters";
         createUserErrorMessage.style.display = "block";
     } else {
         createUserErrorMessage.style.display = "none";
-        checkUserExists(newUsername, newPassword);
+        document.getElementById("createButton").innerText = "Validating and Creating User..";
+        document.getElementById("createButton").disabled = true;
+        document.getElementById("createButton").style.cursor = "not-allowed"
+        checkUserExists(newUsername, newEmail, newPassword);
     }
 }
+
+async function verifyEmailOtp() {
+    var emailOtp = document.getElementById("emailotp").value;
+    if (emailOtp.length < 6 || emailOtp.length >= 7) {
+        document.getElementById("createUserErrorMessage").innerText = "Enter valid 6 digit otp";
+        document.getElementById("createUserErrorMessage").style.display = "block";
+    } else {
+        document.getElementById("verifyEmail").disabled = true;
+        document.getElementById("verifyEmail").style.cursor = "not-allowed";
+        var newEmail = document.getElementById("newEmail").value;
+        const apiUrl = `/VerifyEmailOtp?email=${newEmail}&emailOtp=${emailOtp}`;
+        const response = await fetch(apiUrl);
+        const message = await response.text();
+
+        if (message != 'Thank you, Email Is Verified') {
+            document.getElementById("createUserErrorMessage").innerText = message;
+            document.getElementById("createUserErrorMessage").style.display = "block";
+            document.getElementById("verifyEmail").disabled = false;
+            document.getElementById("verifyEmail").style.cursor = "pointer";
+        } else {
+            document.getElementById("createUserErrorMessage").innerText = message;
+            document.getElementById("createUserErrorMessage").style.display = "block";
+            setTimeout(function () {
+                var newUsername = document.getElementById("newUsername").value;
+                var newPassword = document.getElementById("newPassword").value;
+                document.getElementById("createUserPopup").style.display = "none";
+                submitNewUserForm(newUsername, newPassword);
+            }, 2000);
+        }
+    }
+}
+
+function validateEmail(email) {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailPattern.test(email);
+}
+
 function closeCreateUserPopup() {
     document.getElementById("createUserPopup").style.display = "none";
     document.getElementById("errorMessage").style.display = "none";
 }
 
-function checkUserExists(newUserName, newPassword) {
+function checkUserExists(newUserName, newEmail, newPassword) {
     $.ajax({
         url: '/NewUserRegister',
         type: 'POST',
-        data: { newUserName: newUserName, newPassword: newPassword },
+        data: { newUserName: newUserName, newEmail: newEmail, newPassword: newPassword },
         success: function (data) {
-
-            if (data === 0) {
-                document.getElementById("createUserErrorMessage").innerText = "User Already Exists";
+            if (data != 'User registered successfully') {
+                document.getElementById("createUserErrorMessage").innerText = data;
                 document.getElementById("createUserErrorMessage").style.display = "block";
+                document.getElementById("createButton").innerText = "Create";
+                document.getElementById("createButton").disabled = false;
             } else {
-                document.getElementById("createUserErrorMessage").innerText = "User Created Redirecting..";
+                document.getElementById("createButton").innerText = "User Created..";
+                document.getElementById("newUsername").style.display = "none";
+                document.getElementById("newPassword").style.display = "none";
+                document.getElementById("createButton").style.display = "none";
+                document.getElementById("newEmail").disabled = true;
+                document.getElementById('emailotp').style.display = "";
+                document.getElementById('verifyEmail').style.display = "";
+                document.getElementById("createUserErrorMessage").innerText = "Check your email inbox or spam folder";
                 document.getElementById("createUserErrorMessage").style.display = "block";
-                setTimeout(function () {
-                    document.getElementById("createUserPopup").style.display = "none";
-                    window.location.href = '/UserChatHistory?userName=' + newUserName + '&passWord=' + newPassword;
-                    submitNewUserForm(newUserName, newPassword);
-                }, 2000);
-
+                
             }
         }
     });
@@ -73,7 +120,7 @@ function submitNewUserForm(newUserName, newPassword) {
     // Create a form element
     var form = document.createElement('form');
     form.method = 'post';
-    form.action = '/UserChatHistory';
+    form.action = '/Login';
 
     // Function to create hidden input field
     function createHiddenInput(name, value) {

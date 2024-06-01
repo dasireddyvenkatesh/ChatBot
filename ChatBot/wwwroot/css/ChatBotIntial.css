@@ -48,7 +48,7 @@ input[type="password"] {
 }
 
 button {
-    width:50%;
+    width: 50%;
     padding: 10px 20px;
     background-color: #007bff;
     color: white;
@@ -91,4 +91,13 @@ button {
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 100px;
+}
+
+#newEmail, #emailotp, #verifyEmail {
+    width: 50%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    text-align: center;
 }

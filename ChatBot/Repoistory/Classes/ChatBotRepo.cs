@@ -32,25 +32,27 @@ namespace ChatBot.Repoistory.Classes
 
         }
 
-        public async Task<int> NewUser(string userName, string passWord)
+        public async Task<string> NewUser(string userName, string email, string passWord, string deviceIp)
         {
-            if (!string.IsNullOrEmpty(userName) && userName.Length >= 3)
+
+            string dbConnection = _configuration.GetConnectionString("DefaultConnection");
+
+            using (SqlConnection connection = new SqlConnection(dbConnection))
             {
-                string dbConnection = _configuration.GetConnectionString("DefaultConnection");
+                DynamicParameters dynamicParameters = new DynamicParameters();
+                dynamicParameters.Add("@userName", userName);
+                dynamicParameters.Add("@email", email);
+                dynamicParameters.Add("@passWord", BCrypt.Net.BCrypt.HashPassword(passWord));
+                dynamicParameters.Add("deviceIp", deviceIp);
+                dynamicParameters.Add("@message", dbType: DbType.String, direction: ParameterDirection.Output, size: 255);
 
-                using (SqlConnection connection = new SqlConnection(dbConnection))
-                {
-                    DynamicParameters dynamicParameters = new DynamicParameters();
-                    dynamicParameters.Add("@userName", userName);
-                    dynamicParameters.Add("@passWord", BCrypt.Net.BCrypt.HashPassword(passWord));
+                await connection.ExecuteAsync("NewUserRegister", dynamicParameters, commandType: CommandType.StoredProcedure);
 
-                    int userId = await connection.QueryFirstOrDefaultAsync<int>("NewUserRegister", dynamicParameters, commandType: CommandType.StoredProcedure);
+                string message = dynamicParameters.Get<string>("@message");
 
-                    return userId;
-                }
+                return message;
             }
 
-            return 0;
         }
 
         public async Task<string?> ValidateUserName(string userName)
@@ -65,22 +67,6 @@ namespace ChatBot.Repoistory.Classes
                 string? userPw = await connection.QueryFirstOrDefaultAsync<string>("ValidateUserName", dynamicParameters, commandType: CommandType.StoredProcedure);
 
                 return userPw;
-            }
-        }
-
-        public async Task<bool> HistoryExists(int fromUserId, int toUserId)
-        {
-            string dbConnection = _configuration.GetConnectionString("DefaultConnection");
-
-            using (SqlConnection connection = new SqlConnection(dbConnection))
-            {
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                dynamicParameters.Add("@fromUserId", fromUserId);
-                dynamicParameters.Add("@toUserId", toUserId);
-
-                bool chatHistoryExists = await connection.QueryFirstOrDefaultAsync<bool>("HistoryExists", dynamicParameters, commandType: CommandType.StoredProcedure);
-
-                return chatHistoryExists;
             }
         }
 
@@ -111,6 +97,41 @@ namespace ChatBot.Repoistory.Classes
                 dynamicParameters.Add("@userId", userId);
 
                 var result = await connection.QueryFirstAsync<DateTime>("LastSeenStatus", dynamicParameters, commandType: CommandType.StoredProcedure);
+
+                return result;
+            }
+        }
+
+        public async Task<bool> UpdateEmailOtp(string email, int emailOtp)
+        {
+            string dbConnection = _configuration.GetConnectionString("DefaultConnection");
+
+            using (SqlConnection connection = new SqlConnection(dbConnection))
+            {
+                DynamicParameters dynamicParameters = new DynamicParameters();
+                dynamicParameters.Add("@email", email);
+                dynamicParameters.Add("@emailOtp", emailOtp);
+
+                await connection.ExecuteAsync("UpdateEmailOtp", dynamicParameters, commandType: CommandType.StoredProcedure);
+
+                return true;
+            }
+        }
+
+        public async Task<string> VerifyEmailOtp(string email, int emailOtp)
+        {
+            string dbConnection = _configuration.GetConnectionString("DefaultConnection");
+
+            using (SqlConnection connection = new SqlConnection(dbConnection))
+            {
+                DynamicParameters dynamicParameters = new DynamicParameters();
+                dynamicParameters.Add("@email", email);
+                dynamicParameters.Add("@emailOtp", emailOtp);
+                dynamicParameters.Add("@Message", dbType: DbType.String, direction: ParameterDirection.Output, size: 255);
+
+                await connection.ExecuteAsync("VerifyEmailOtp", dynamicParameters, commandType: CommandType.StoredProcedure);
+
+                string result = dynamicParameters.Get<string>("@Message");
 
                 return result;
             }
@@ -256,9 +277,9 @@ namespace ChatBot.Repoistory.Classes
                 DynamicParameters dynamicParameters = new DynamicParameters();
                 dynamicParameters.Add("@userId", userId);
 
-                string userName = await connection.QueryFirstAsync<string>("GetUserName", dynamicParameters, commandType: CommandType.StoredProcedure);
+                string? userName = await connection.QueryFirstOrDefaultAsync<string>("GetUserName", dynamicParameters, commandType: CommandType.StoredProcedure);
 
-                return userName;
+                return userName != null ? userName : string.Empty;
             }
         }
 
@@ -271,7 +292,7 @@ namespace ChatBot.Repoistory.Classes
                 DynamicParameters dynamicParameters = new DynamicParameters();
                 dynamicParameters.Add("@userName", userName);
 
-                int userId = await connection.QueryFirstAsync<int>("GetIdbyUserName", dynamicParameters, commandType: CommandType.StoredProcedure);
+                int userId = await connection.QueryFirstOrDefaultAsync<int>("GetIdbyUserName", dynamicParameters, commandType: CommandType.StoredProcedure);
 
                 return userId;
             }

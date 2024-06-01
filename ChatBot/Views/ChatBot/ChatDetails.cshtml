@@ -12,7 +12,7 @@
     <div id="chatContainer">
         <div id="loader"></div>
         <div id="chatInfo">
-            <button class="backButton" onclick="submitForm()")'">&#10094;</button>
+            <button class="backButton" onclick="location.href='@Url.Action("UserChatHistory")'">&#10094;</button>
             <div id="chatUserAndStatusContainer">
                 <span id="chatUserName" class="chatUserName">@Model.First().UserName</span>
                 <span id="chatLastSeen" class="chatUserName"></span>

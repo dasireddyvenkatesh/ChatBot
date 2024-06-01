@@ -1,5 +1,4 @@
 ﻿using ChatBot.BusinessLayer.Interfaces;
-using ChatBot.Models;
 using ChatBot.Repoistory.Interfaces;
 
 namespace ChatBot.BusinessLayer.Classes
@@ -13,18 +12,16 @@ namespace ChatBot.BusinessLayer.Classes
             _chatBotRepo = chatBotRepo;
         }
 
-        public async Task<UnAuthroizedModel> DuplicateCheck(int fromUserId, int toUserId, bool newUser)
+        public async Task<string> DuplicateCheck(int fromUserId, int toUserId, bool newUser)
         {
             if (newUser)
             {
                 await _chatBotRepo.InsertHistory(fromUserId, toUserId);
             }
 
-            UnAuthroizedModel unAuthroizedModel = new UnAuthroizedModel();
+            var loginUserName = await _chatBotRepo.GetUserNameById(fromUserId);
 
-            unAuthroizedModel.HistoryExists = await _chatBotRepo.HistoryExists(fromUserId, toUserId);
-
-            return unAuthroizedModel;
+            return loginUserName;
         }
     }
 }

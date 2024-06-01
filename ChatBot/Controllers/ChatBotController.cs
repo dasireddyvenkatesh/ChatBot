@@ -1,12 +1,12 @@
 ﻿using ChatBot.BusinessLayer.Interfaces;
-using ChatBot.Models;
 using ChatBot.Repoistory.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using System.Net.NetworkInformation;
 
 namespace ChatBot.Controllers
 {
+    [Authorize]
     public class ChatBotController : Controller
     {
         private readonly IGetUserChatHistory _chatHistory;
@@ -32,31 +32,6 @@ namespace ChatBot.Controllers
             _compressImage = compressImage;
             _chatBotRepo = chatBotRepo;
             _insertAndDuplicateCheck = insertAndDuplicateCheck;
-        }
-
-        public IActionResult ChatBotInital()
-        {
-
-            //string userAgent = Request.Headers["sec-ch-ua-platform"].ToString().Trim('"', '\\');
-
-            //var networkAvailable = NetworkInterface.GetIsNetworkAvailable();
-
-            //var networkInterface = NetworkInterface.GetAllNetworkInterfaces();
-
-            //PhysicalAddress physicalAddress = networkInterface.Where(x =>x.Description == "Microsoft Wi-Fi Direct Virtual Adapter").First().GetPhysicalAddress();
-
-            //string macAddress = BitConverter.ToString(physicalAddress.GetAddressBytes());
-
-
-            return View();
-        }
-
-        [Route("NewUserRegister")]
-        public async Task<int> NewUserRegister(string newUserName, string newPassword)
-        {
-            int newUserId = await _chatBotRepo.NewUser(newUserName, newPassword);
-
-            return newUserId;
         }
 
         [Route("MessageDetails")]
@@ -97,19 +72,13 @@ namespace ChatBot.Controllers
         }
 
         [Route("UserChatHistory")]
-        public async Task<IActionResult> UserChatHistory(string userName, string passWord, bool loggedInUser = false)
+        public async Task<IActionResult> UserChatHistory()
         {
-            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(passWord))
-            {
-                return View("UnAuthorized", new UnAuthroizedModel { UnAuthroizeEntry = false });
-            }
+            var userName = User.Identity?.Name;
 
-            var history = await _chatHistory.History(userName, passWord, loggedInUser);
+            if (string.IsNullOrEmpty(userName))  return RedirectToAction("ChatBotInital", "Public") ;
 
-            if (history.Count == 0)
-            {
-                return View("ChatBotInital", "Enter Valid Username and Password");
-            }
+            var history = await _chatHistory.History(userName);
 
             return View(history);
         }
@@ -117,14 +86,17 @@ namespace ChatBot.Controllers
         [Route("ChatDetails")]
         public async Task<IActionResult> ChatDetails(int fromUserId, int toUserId, bool newUser = false)
         {
-            UnAuthroizedModel unAuthroizedModel = await _insertAndDuplicateCheck.DuplicateCheck(fromUserId, toUserId, newUser);
+            string loginUserName = await _insertAndDuplicateCheck.DuplicateCheck(fromUserId, toUserId, newUser);
 
-            if (unAuthroizedModel.Duplicate || (!unAuthroizedModel.HistoryExists))
+            string toUserName = await _chatBotRepo.GetUserNameById(toUserId);
+
+            if (string.IsNullOrEmpty(loginUserName) || string.IsNullOrEmpty(toUserName) ||
+                User.Identity == null || loginUserName != User.Identity?.Name)
             {
-                return View("UnAuthorized", unAuthroizedModel);
+                return View("UnAuthorized");
             }
 
-            var userDetails = await _chatDetails.GetChat(fromUserId, toUserId);
+            var userDetails = await _chatDetails.GetChat(fromUserId, toUserId, loginUserName);
 
             return View(userDetails);
         }
