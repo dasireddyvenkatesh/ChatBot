@@ -74,7 +74,7 @@ namespace ChatBot.Controllers
         [Route("UserChatHistory")]
         public async Task<IActionResult> UserChatHistory()
         {
-            var userName = User.Identity?.Name;
+            var userName = Request.Cookies["MUID"] ?? string.Empty;
 
             if (string.IsNullOrEmpty(userName))  return RedirectToAction("ChatBotInital", "Public") ;
 
