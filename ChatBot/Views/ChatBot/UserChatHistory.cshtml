@@ -17,26 +17,34 @@
         </h1>
 
         <ul id="chat-History">
-            @foreach (var chat in Model)
+
+            @if(Model.Count == 1 && string.IsNullOrWhiteSpace(Model.First().UserName))
             {
-                <li id="@chat.FromUserId,@chat.ToUserId">
-                    <a onclick="submitChatForm(@chat.FromUserId, @chat.ToUserId)">
-                        <h2>@chat.UserName</h2>
-                        <span id="chat-LastMessage" style="font-weight: @(chat.UnreadMessages > 0 ? "bold" : "normal")">@chat.Message</span>
-                        @if (!string.IsNullOrEmpty(chat.UserPhoto)) 
-                        {
-                            <img id="userPhoto" src="data:image/png;base64,@chat.UserPhoto" alt="Popup Image">
-                        }
-                        <small title="UnreadMessageCount" id="unread-Messages" class="@(chat.UnreadMessages > 0 ? "unread-Messages" : "")">
-                            @if (chat.UnreadMessages > 0)
+                <p>Click on the + icon to find the users to start chatting.</p>
+            }
+            else
+            {
+                @foreach (var chat in Model)
+                {
+                    <li id="@chat.FromUserId,@chat.ToUserId">
+                        <a onclick="submitChatForm(@chat.FromUserId, @chat.ToUserId)">
+                            <h2>@chat.UserName</h2>
+                            <span id="chat-LastMessage" style="font-weight: @(chat.UnreadMessages > 0 ? "bold" : "normal")">@chat.Message</span>
+                            @if (!string.IsNullOrEmpty(chat.UserPhoto))
                             {
-                                @chat.UnreadMessages
+                                <img id="userPhoto" src="data:image/png;base64,@chat.UserPhoto" alt="Popup Image">
                             }
-                        </small>
-                        <small id="LastStatus" style="color: @(chat.LastStatus == "Online" ? "green" : "maroon")">@chat.LastStatus</small>
-                        <input type="hidden" id="lastMessageId" value="@chat.LastMessageId">
-                    </a>
-                </li>
+                            <small title="UnreadMessageCount" id="unread-Messages" class="@(chat.UnreadMessages > 0 ? "unread-Messages" : "")">
+                                @if (chat.UnreadMessages > 0)
+                                {
+                                    @chat.UnreadMessages
+                                }
+                            </small>
+                            <small id="LastStatus" style="color: @(chat.LastStatus == "Online" ? "green" : "maroon")">@chat.LastStatus</small>
+                            <input type="hidden" id="lastMessageId" value="@chat.LastMessageId">
+                        </a>
+                    </li>
+                }
             }
         </ul>
     </div>
@@ -68,7 +76,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/jquery/dist/select2.min.js"></script>
     <script>
-        const fromUserId = @Model.Count > 0 ? @Model.First().FromUserId : 0;
+        const fromUserId = @Model.First().FromUserId;
     </script>
     <script src="~/js/UserChatHistory.js"></script>
     <script src="~/js/removeText.js"></script>

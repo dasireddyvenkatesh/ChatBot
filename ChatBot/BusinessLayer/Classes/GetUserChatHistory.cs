@@ -20,13 +20,13 @@ namespace ChatBot.BusinessLayer.Classes
 
             var histories = await _chatBot.GetHistory(userName);
 
-            //if (histories.Count == 0)
-            //{
+            if (histories.Count == 0)
+            {
 
-            //    histories.Add(new ChatHistoryModel());
-            //    histories.First().FromUserId = await _chatBot.GetIdByUsername(userName);
+                histories.Add(new ChatHistoryModel());
+                histories.First().FromUserId = await _chatBot.GetIdByUsername(userName);
 
-            //}
+            }
 
             foreach (var history in histories)
             {
