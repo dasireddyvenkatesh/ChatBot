@@ -13,7 +13,12 @@ function closePopup() {
     document.getElementById("popupContainer").style.display = "none";
 }
 
-function redirectToPage() {
+function redirectToPage(event) {
+
+    if (selectedValue == 0) {
+        event.preventDefault();
+        return;
+    }
 
     // Create a form element
     var form = document.createElement('form');
