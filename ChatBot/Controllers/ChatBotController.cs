@@ -1,12 +1,10 @@
 ﻿using ChatBot.BusinessLayer.Interfaces;
 using ChatBot.Repoistory.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChatBot.Controllers
 {
-    [Authorize]
     public class ChatBotController : Controller
     {
         private readonly IGetUserChatHistory _chatHistory;
@@ -75,8 +73,6 @@ namespace ChatBot.Controllers
         public async Task<IActionResult> UserChatHistory()
         {
             var userName = Request.Cookies["MUID"] ?? string.Empty;
-
-            if (string.IsNullOrEmpty(userName))  return RedirectToAction("ChatBotInital", "Public") ;
 
             var history = await _chatHistory.History(userName);
 

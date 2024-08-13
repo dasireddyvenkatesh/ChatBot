@@ -5,23 +5,12 @@ using ChatBot.Repoistory.Classes;
 using ChatBot.Repoistory.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-//{
-//    options.LoginPath = "/Public/ChatBotInital";
-//    options.ExpireTimeSpan = TimeSpan.FromDays(30);
-//});
-
-//builder.Services.AddSession(session =>
-//{
-//    session.IdleTimeout = TimeSpan.FromDays(30);
-//    session.Cookie.HttpOnly = true;
-//    session.Cookie.IsEssential = true;
-//});
 
 builder.Services.AddSignalR(options =>
 {
@@ -58,9 +47,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication();
-app.UseAuthorization();
-//app.UseSession();
+app.UseMiddleware<CustomMiddleware>();
 
 app.UseEndpoints(endpoints =>
 {

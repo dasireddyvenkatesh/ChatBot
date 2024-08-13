@@ -1,9 +1,6 @@
 ﻿using ChatBot.BusinessLayer.Interfaces;
 using ChatBot.Repoistory.Interfaces;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace ChatBot.Controllers
 {
@@ -59,13 +56,6 @@ namespace ChatBot.Controllers
                         Expires = DateTime.Now.AddDays(30)
                     };
                     Response.Cookies.Append("MUID", userName, option);
-
-                    //await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity),
-                    //new AuthenticationProperties
-                    //{
-                    //    IsPersistent = true,
-                    //    ExpiresUtc = DateTime.UtcNow.AddDays(30)
-                    //});
 
                     return RedirectToAction("UserChatHistory", "ChatBot");
 
