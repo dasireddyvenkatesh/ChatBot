@@ -1,4 +1,5 @@
 ﻿using ChatBot.BusinessLayer.Interfaces;
+using ChatBot.Models;
 using ChatBot.Repoistory.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -87,11 +88,11 @@ namespace ChatBot.Controllers
         }
 
         [Route("ChatDetails")]
-        public async Task<IActionResult> ChatDetails([FromBody] int fromUserId, int toUserId, bool newUser = false)
+        public async Task<IActionResult> ChatDetails([FromBody] ChatDetailsRequestModel chatDetailsRequest)
         {
-            string loginUserName = await _insertAndDuplicateCheck.DuplicateCheck(fromUserId, toUserId, newUser);
+            string loginUserName = await _insertAndDuplicateCheck.DuplicateCheck(chatDetailsRequest);
 
-            string toUserName = await _chatBotRepo.GetUserNameById(toUserId);
+            string toUserName = await _chatBotRepo.GetUserNameById(chatDetailsRequest.ToUserId);
 
             if (loginUserName != Request.Cookies["MUID"])
             {
@@ -100,13 +101,13 @@ namespace ChatBot.Controllers
                 return RedirectToAction("ChatBotInital", "Public"); 
             }
 
-            var userDetails = await _chatDetails.GetChat(fromUserId, toUserId, loginUserName);
+            var userDetails = await _chatDetails.GetChat(chatDetailsRequest.FromUserId, chatDetailsRequest.ToUserId, loginUserName);
 
             return View(userDetails);
         }
 
         [Route("SendMessage")]
-        public async Task SendMessage([FromBody] int fromUserId, int toUserId, string message, IFormFile imageFile)
+        public async Task SendMessage(int fromUserId, int toUserId, string message, IFormFile imageFile)
         {
 
             if (imageFile != null && imageFile.Length > 0)

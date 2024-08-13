@@ -1,4 +1,5 @@
 ﻿using ChatBot.BusinessLayer.Interfaces;
+using ChatBot.Models;
 using ChatBot.Repoistory.Interfaces;
 
 namespace ChatBot.BusinessLayer.Classes
@@ -12,14 +13,14 @@ namespace ChatBot.BusinessLayer.Classes
             _chatBotRepo = chatBotRepo;
         }
 
-        public async Task<string> DuplicateCheck(int fromUserId, int toUserId, bool newUser)
+        public async Task<string> DuplicateCheck(ChatDetailsRequestModel detailsRequestModel)
         {
-            if (newUser)
+            if (detailsRequestModel.NewUser)
             {
-                await _chatBotRepo.InsertHistory(fromUserId, toUserId);
+                await _chatBotRepo.InsertHistory(detailsRequestModel.FromUserId, detailsRequestModel.ToUserId);
             }
 
-            var loginUserName = await _chatBotRepo.GetUserNameById(fromUserId);
+            var loginUserName = await _chatBotRepo.GetUserNameById(detailsRequestModel.FromUserId);
 
             return loginUserName;
         }

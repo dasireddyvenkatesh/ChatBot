@@ -20,30 +20,19 @@ function redirectToPage(event) {
         return;
     }
 
-    // Create a form element
-    var form = document.createElement('form');
-    form.method = 'post';
-    form.action = '/ChatDetails';
+    const data = {
+        fromUserId: fromUserId,
+        toUserId: selectedValue,
+        newUser: true
+    };
 
-    // Function to create hidden input field
-    function createHiddenInput(name, value) {
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        return input;
-    }
-
-    // Create hidden input fields for parameters
-    form.appendChild(createHiddenInput('fromUserId', fromUserId));
-    form.appendChild(createHiddenInput('toUserId', selectedValue));
-    form.appendChild(createHiddenInput('newUser', true));
-
-    // Append the form to the document body
-    document.body.appendChild(form);
-
-    // Submit the form
-    form.submit();
+    fetch('/ChatDetails', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
 
     closePopup();
 }
