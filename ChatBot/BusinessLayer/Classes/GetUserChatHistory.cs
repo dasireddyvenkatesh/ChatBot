@@ -20,13 +20,13 @@ namespace ChatBot.BusinessLayer.Classes
 
             var histories = await _chatBot.GetHistory(userName);
 
-            if (histories.Count == 0)
-            {
+            //if (histories.Count == 0)
+            //{
 
-                histories.Add(new ChatHistoryModel());
-                histories.First().FromUserId = await _chatBot.GetIdByUsername(userName);
+            //    histories.Add(new ChatHistoryModel());
+            //    histories.First().FromUserId = await _chatBot.GetIdByUsername(userName);
 
-            }
+            //}
 
             foreach (var history in histories)
             {
@@ -34,9 +34,12 @@ namespace ChatBot.BusinessLayer.Classes
                 history.LastMessageId = await _chatBot.LastMessageId(history.FromUserId, history.ToUserId);
             }
 
-            string existingChatUsers = string.Join(",", histories.Select(x => x.UserName).Append(userName));
+            if (histories.Any())
+            {
+                string existingChatUsers = string.Join(",", histories.Select(x => x.UserName).Append(userName));
 
-            histories.First().ExistingUsers = await _chatBot.ExistingUsers(existingChatUsers);
+                histories.First().ExistingUsers = await _chatBot.ExistingUsers(existingChatUsers);
+            }
 
             return histories;
         }
