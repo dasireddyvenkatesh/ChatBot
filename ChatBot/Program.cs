@@ -3,10 +3,7 @@ using ChatBot.BusinessLayer.Classes;
 using ChatBot.BusinessLayer.Interfaces;
 using ChatBot.Repoistory.Classes;
 using ChatBot.Repoistory.Interfaces;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Connections;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
