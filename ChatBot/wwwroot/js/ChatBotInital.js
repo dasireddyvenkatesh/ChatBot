@@ -48,6 +48,23 @@ function validateAndCreateUser() {
     }
 }
 
+async function validateAndResendOtp() {
+    var newEmail = document.getElementById("newEmail").value;
+    const apiUrl = `/ResendEmailOtp?email=${newEmail}`;
+    const response = await fetch(apiUrl);
+    const message = await response.text();
+
+    if (message != 'Thank you, Email Is Verified') {
+
+        document.getElementById("createUserErrorMessage").innerText = message;
+        document.getElementById("createUserErrorMessage").style.display = "block";
+
+    } else {
+        document.getElementById("createUserErrorMessage").innerText = '';
+        document.getElementById("createUserErrorMessage").style.display = "none";
+    }
+}
+
 async function verifyEmailOtp() {
     var emailOtp = document.getElementById("emailotp").value;
     if (emailOtp.length < 6 || emailOtp.length >= 7) {
@@ -64,6 +81,7 @@ async function verifyEmailOtp() {
         if (message != 'Thank you, Email Is Verified') {
             document.getElementById("createUserErrorMessage").innerText = message;
             document.getElementById("createUserErrorMessage").style.display = "block";
+            document.getElementById("resendOtp").style.display = "";
             document.getElementById("verifyEmail").disabled = false;
             document.getElementById("verifyEmail").style.cursor = "pointer";
         } else {

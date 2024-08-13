@@ -9,19 +9,19 @@ using Microsoft.AspNetCore.Http.Connections;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-{
-    options.LoginPath = "/Public/ChatBotInital";
-    options.ExpireTimeSpan = TimeSpan.FromDays(30);
-});
+//builder.Services.AddControllersWithViews();
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+//{
+//    options.LoginPath = "/Public/ChatBotInital";
+//    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+//});
 
-builder.Services.AddSession(session =>
-{
-    session.IdleTimeout = TimeSpan.FromDays(30);
-    session.Cookie.HttpOnly = true;
-    session.Cookie.IsEssential = true;
-});
+//builder.Services.AddSession(session =>
+//{
+//    session.IdleTimeout = TimeSpan.FromDays(30);
+//    session.Cookie.HttpOnly = true;
+//    session.Cookie.IsEssential = true;
+//});
 
 builder.Services.AddSignalR(options =>
 {
@@ -42,6 +42,7 @@ builder.Services.AddTransient<IRegisterEmail, RegisterEmail>();
 builder.Services.AddTransient<IVerifyEmailOtp, VerifyEmailOtp>();
 builder.Services.AddTransient<IEmailMessage, EmailMessage>();
 builder.Services.AddTransient<IRegisterVerifiedEmail, RegisterVerifiedEmail>();
+builder.Services.AddTransient<IResendEmailOtp, ResendEmailOtp>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 var app = builder.Build();
@@ -49,7 +50,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    //app.UseHsts();
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();

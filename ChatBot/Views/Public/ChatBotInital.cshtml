@@ -32,7 +32,7 @@
             <input type="password" id="newPassword" class="form-control" placeholder="Enter Password" />
             <button id="createButton" onclick="validateAndCreateUser()" class="btn btn-primary">Create</button>
             <input type="number" id="emailotp" class="form-control" style="display:none" placeholder="Enter Email Otp" />
-            <button id="resendOtp" onclick="" class="btn btn-danger" style="display:none">Resend Otp</button>
+            <button id="resendOtp" onclick="validateAndResendOtp()" class="btn btn-danger" style="display:none">Resend Otp</button>
             <button id="verifyEmail" onclick="verifyEmailOtp()" class="btn btn-primary" style="display:none">Verify Otp</button>
             <p class="error-message" id="createUserErrorMessage" style="display: none;">Please create a userId with min 3 char.</p>
         </div>

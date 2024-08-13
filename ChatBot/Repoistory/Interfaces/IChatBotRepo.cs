@@ -22,6 +22,8 @@ namespace ChatBot.Repoistory.Interfaces
 
         public Task<string> VerifyEmailOtp(string email, int emailOtp);
 
+        public Task<string> ResendEmailOtp(string email);
+
         public Task UpdateLastSeen(int userId);
 
         public Task<LastMessageModel> LastMessageStatus(int fromUserId, int toUserId, int lastMessageId);

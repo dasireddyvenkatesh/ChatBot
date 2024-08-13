@@ -137,6 +137,24 @@ namespace ChatBot.Repoistory.Classes
             }
         }
 
+        public async Task<string> ResendEmailOtp(string email)
+        {
+            string dbConnection = _configuration.GetConnectionString("DefaultConnection");
+
+            using (SqlConnection connection = new SqlConnection(dbConnection))
+            {
+                DynamicParameters dynamicParameters = new DynamicParameters();
+                dynamicParameters.Add("@email", email);
+                dynamicParameters.Add("@Message", dbType: DbType.String, direction: ParameterDirection.Output, size: 255);
+
+                await connection.ExecuteAsync("ResendEmailOtp", dynamicParameters, commandType: CommandType.StoredProcedure);
+
+                string result = dynamicParameters.Get<string>("@Message");
+
+                return result;
+            }
+        }
+
         public async Task UpdateLastSeen(int userId)
         {
             string dbConnection = _configuration.GetConnectionString("DefaultConnection");

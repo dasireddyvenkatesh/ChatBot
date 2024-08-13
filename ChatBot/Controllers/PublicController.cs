@@ -13,32 +13,28 @@ namespace ChatBot.Controllers
         private readonly IChatBotRepo _chatBotRepo;
         private readonly INewUserRegistration _newUser;
         private readonly IVerifyEmailOtp _verifyEmailOtp;
+        private readonly IResendEmailOtp _resendEmailOtp;
 
         public PublicController(IHttpContextAccessor contextAccessor, IChatBotRepo chatBotRepo,
-                                    INewUserRegistration newUser, IVerifyEmailOtp verifyEmailOtp)
+                                    INewUserRegistration newUser, IVerifyEmailOtp verifyEmailOtp,
+                                    IResendEmailOtp resendEmailOtp)
         {
             _contextAccessor = contextAccessor;
             _chatBotRepo = chatBotRepo;
             _newUser = newUser;
             _verifyEmailOtp = verifyEmailOtp;
+            _resendEmailOtp = resendEmailOtp;
         }
 
         public IActionResult ChatBotInital()
         {
 
-            if (User.Identity != null && User.Identity.IsAuthenticated)
+            var encryptedData = Request.Cookies["MUID"] ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(encryptedData))
             {
                 return RedirectToAction("UserChatHistory", "ChatBot");
             }
-
-
-
-            //var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-
-            //var context = _contextAccessor?.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
-
-            //context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
             return View();
         }
 
@@ -54,18 +50,22 @@ namespace ChatBot.Controllers
 
                 if (isValid)
                 {
-                    var claims = new List<Claim> { new Claim(ClaimTypes.Name, userName) };
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                    var context = _contextAccessor?.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
-
-                    await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity),
-                    new AuthenticationProperties
+                    CookieOptions option = new CookieOptions()
                     {
-                        IsPersistent = true,
-                        ExpiresUtc = DateTime.UtcNow.AddDays(30)
-                    });
+                        SameSite = SameSiteMode.Strict,
+                        Secure = true,
+                        HttpOnly = true,
+                        IsEssential = true,
+                        Expires = DateTime.Now.AddDays(30)
+                    };
+                    Response.Cookies.Append("MUID", userName, option);
+
+                    //await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity),
+                    //new AuthenticationProperties
+                    //{
+                    //    IsPersistent = true,
+                    //    ExpiresUtc = DateTime.UtcNow.AddDays(30)
+                    //});
 
                     return RedirectToAction("UserChatHistory", "ChatBot");
 
@@ -91,6 +91,14 @@ namespace ChatBot.Controllers
             string response = await _verifyEmailOtp.Verify(email, emailOtp);
 
             return response;
+        }
+
+        [Route("ResendEmailOtp")]
+        public async Task<string> ResendEmailOtp(string email)
+        {
+            string messaage = await _resendEmailOtp.Send(email);
+
+            return messaage;
         }
     }
 }
