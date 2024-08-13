@@ -66,10 +66,10 @@ namespace ChatBot.Controllers
         }
 
         [HttpPost("NewUserRegister")]
-        public async Task<string> NewUserRegister(string newUserName, string newEmail, string newPassword)
+        public async Task<string> NewUserRegister(string newEmail, string newPassword)
         {
             
-            string response = await _newUser.Register(newUserName, newEmail, newPassword);
+            string response = await _newUser.Register(newEmail, newPassword);
 
             return response;
         }

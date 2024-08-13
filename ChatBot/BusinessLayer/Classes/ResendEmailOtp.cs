@@ -46,7 +46,7 @@ namespace ChatBot.BusinessLayer.Classes
                     await _chatBotRepo.UpdateEmailOtp(email, randomNumber);
 
                     //sent an email 
-                    _registerEmail.Send(email, randomNumber);
+                   // _registerEmail.Send(userName, email, randomNumber);
                 }
             }
 

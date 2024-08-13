@@ -26,14 +26,12 @@ function showCreateUserPopup() {
 }
 
 function validateAndCreateUser() {
-    var newUsername = document.getElementById("newUsername").value;
     var newEmail = document.getElementById("newEmail").value;
     var newPassword = document.getElementById("newPassword").value;
     var createUserErrorMessage = document.getElementById("createUserErrorMessage");
 
-    if ((newUsername === "" || newUsername.length <= 3)) {
-        createUserErrorMessage.style.display = "block";
-    } else if (!validateEmail(newEmail)) {
+
+    if (!validateEmail(newEmail)) {
         createUserErrorMessage.innerText = "Enter a valid email address";
         createUserErrorMessage.style.display = "block";
     } else if (newPassword === null || newPassword.length <= 5) {
@@ -44,7 +42,7 @@ function validateAndCreateUser() {
         document.getElementById("createButton").innerText = "Validating and Creating User..";
         document.getElementById("createButton").disabled = true;
         document.getElementById("createButton").style.cursor = "not-allowed"
-        checkUserExists(newUsername, newEmail, newPassword);
+        checkUserExists(newEmail, newPassword);
     }
 }
 
@@ -91,7 +89,7 @@ async function verifyEmailOtp() {
                 var newUsername = document.getElementById("newUsername").value;
                 var newPassword = document.getElementById("newPassword").value;
                 document.getElementById("createUserPopup").style.display = "none";
-                submitNewUserForm(newUsername, newPassword);
+                //submitNewUserForm(newUsername, newPassword);
             }, 2000);
         }
     }
@@ -107,20 +105,20 @@ function closeCreateUserPopup() {
     document.getElementById("errorMessage").style.display = "none";
 }
 
-function checkUserExists(newUserName, newEmail, newPassword) {
+function checkUserExists(newEmail, newPassword) {
     $.ajax({
         url: '/NewUserRegister',
         type: 'POST',
-        data: { newUserName: newUserName, newEmail: newEmail, newPassword: newPassword },
+        data: {newEmail: newEmail, newPassword: newPassword },
         success: function (data) {
             if (data != 'User registered successfully') {
                 document.getElementById("createUserErrorMessage").innerText = data;
                 document.getElementById("createUserErrorMessage").style.display = "block";
                 document.getElementById("createButton").innerText = "Create";
                 document.getElementById("createButton").disabled = false;
+                document.getElementById("createButton").style.cursor = "pointer";
             } else {
                 document.getElementById("createButton").innerText = "User Created..";
-                document.getElementById("newUsername").style.display = "none";
                 document.getElementById("newPassword").style.display = "none";
                 document.getElementById("createButton").style.display = "none";
                 document.getElementById("newEmail").disabled = true;

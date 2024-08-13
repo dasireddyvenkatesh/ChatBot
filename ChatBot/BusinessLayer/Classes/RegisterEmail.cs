@@ -1,4 +1,5 @@
 ﻿using ChatBot.BusinessLayer.Interfaces;
+using System.Security.Cryptography;
 
 namespace ChatBot.BusinessLayer.Classes
 {
@@ -11,7 +12,7 @@ namespace ChatBot.BusinessLayer.Classes
             _emailMessage = emailMessage;
         }
 
-        public void Send(string email, int emailOtp)
+        public void Send(string userName, string email, int emailOtp)
         {
             string subject = "Thank you for signing up!";
             string body = $@"
@@ -19,6 +20,7 @@ namespace ChatBot.BusinessLayer.Classes
             <body>
             <h1>Welcome!</h1>
             <p>Thank you for signing up. We are excited to have you on board!</p>
+            <p>Your Username is :</p> <h2>{userName}</h2>
             <p>Your One-Time Password (OTP) for email verification is:</p>
             <h2>{emailOtp}</h2>
             <p>Please use this OTP to complete your registration.</p>

@@ -2,6 +2,6 @@
 {
     public interface IRegisterEmail
     {
-        public void Send(string email, int emailOtp);
+        public void Send(string userName, string email, int emailOtp);
     }
 }

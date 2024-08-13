@@ -2,6 +2,6 @@
 {
     public interface INewUserRegistration
     {
-        public Task<string> Register(string username, string email, string password);
+        public Task<string> Register(string email, string password);
     }
 }

@@ -17,17 +17,13 @@ namespace ChatBot.BusinessLayer.Classes
             _registerEmail = registerEmail;
         }
 
-        public async Task<string> Register(string username, string email, string password)
+        public async Task<string> Register(string email, string password)
         {
             string message = string.Empty;
 
             bool isMatch = Regex.IsMatch(email, @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z", RegexOptions.IgnoreCase);
 
-            if (string.IsNullOrEmpty(username) || username.Length <= 3)
-            {
-                message = "Please create a userId with min 3 char.";
-            }
-            else if (string.IsNullOrEmpty(email) || !isMatch)
+            if (string.IsNullOrEmpty(email) || !isMatch)
             {
                 message = "Enter a valid email address";
             }
@@ -40,6 +36,8 @@ namespace ChatBot.BusinessLayer.Classes
             {
                 string ipaddress = _contextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
 
+                string username = email.Split("@")[0];
+
                 message = await _chatBotRepo.NewUser(username, email, password, ipaddress);
 
                 if(message == "User registered successfully")
@@ -51,7 +49,7 @@ namespace ChatBot.BusinessLayer.Classes
                     await _chatBotRepo.UpdateEmailOtp(email, randomNumber);
 
                     //sent an email 
-                    _registerEmail.Send(email, randomNumber);
+                    _registerEmail.Send(username, email, randomNumber);
                 }
             }
 

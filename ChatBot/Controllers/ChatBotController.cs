@@ -76,6 +76,13 @@ namespace ChatBot.Controllers
 
             var history = await _chatHistory.History(userName);
 
+            if (history.Count == 1 && history.First().FromUserId == 0)
+            {
+                Response.Cookies.Delete("MUID");
+
+                return RedirectToAction("ChatBotInital", "Public");
+            }
+
             return View(history);
         }
 
