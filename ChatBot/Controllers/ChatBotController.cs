@@ -80,16 +80,17 @@ namespace ChatBot.Controllers
         }
 
         [Route("ChatDetails")]
-        public async Task<IActionResult> ChatDetails(int fromUserId, int toUserId, bool newUser = false)
+        public async Task<IActionResult> ChatDetails([FromBody] int fromUserId, int toUserId, bool newUser = false)
         {
             string loginUserName = await _insertAndDuplicateCheck.DuplicateCheck(fromUserId, toUserId, newUser);
 
             string toUserName = await _chatBotRepo.GetUserNameById(toUserId);
 
-            if (string.IsNullOrEmpty(loginUserName) || string.IsNullOrEmpty(toUserName) ||
-                User.Identity == null || loginUserName != User.Identity?.Name)
+            if (loginUserName != Request.Cookies["MUID"])
             {
-                return View("UnAuthorized");
+                Response.Cookies.Delete("MUID");
+
+                return RedirectToAction("ChatBotInital", "Public"); 
             }
 
             var userDetails = await _chatDetails.GetChat(fromUserId, toUserId, loginUserName);
@@ -98,7 +99,7 @@ namespace ChatBot.Controllers
         }
 
         [Route("SendMessage")]
-        public async Task SendMessage(int fromUserId, int toUserId, string message, IFormFile imageFile)
+        public async Task SendMessage([FromBody] int fromUserId, int toUserId, string message, IFormFile imageFile)
         {
 
             if (imageFile != null && imageFile.Length > 0)
