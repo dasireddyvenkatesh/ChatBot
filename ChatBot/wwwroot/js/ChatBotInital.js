@@ -86,8 +86,8 @@ async function verifyEmailOtp() {
             document.getElementById("createUserErrorMessage").innerText = message;
             document.getElementById("createUserErrorMessage").style.display = "block";
             setTimeout(function () {
-                var newUsername = document.getElementById("newUsername").value;
-                var newPassword = document.getElementById("newPassword").value;
+                //var newUsername = document.getElementById("newUsername").value;
+                //var newPassword = document.getElementById("newPassword").value;
                 document.getElementById("createUserPopup").style.display = "none";
                 closeCreateUserPopup();
                 //submitNewUserForm(newUsername, newPassword);
