@@ -19,7 +19,7 @@ namespace ChatBot
         {
             DateTime userLastStatus = await GetLastSeen(toUserId);
 
-            return userLastStatus >= DateTime.Now.AddSeconds(-10);
+            return userLastStatus >= DateTime.UtcNow.AddSeconds(-10);
         }
 
         public async Task<bool> GetUserActiveStatus(int fromUserId, int toUserId)
@@ -27,13 +27,13 @@ namespace ChatBot
             DateTime fromUserStatus = await GetLastSeen(fromUserId);
             DateTime toUserStatus = await GetLastSeen(toUserId);
 
-            return fromUserStatus >= DateTime.Now.AddSeconds(-10) && toUserStatus >= DateTime.Now.AddSeconds(-10);
+            return fromUserStatus >= DateTime.UtcNow.AddSeconds(-10) && toUserStatus >= DateTime.UtcNow.AddSeconds(-10);
         }
 
         public async Task<string> LastSeenStatus(int userId)
         {
             DateTime lastSeenDate = await GetLastSeen(userId);
-            string lastseen = lastSeenDate.Humanize(utcDate: false);
+            string lastseen = lastSeenDate.Humanize(utcDate: true);
             return lastseen;
         }
 

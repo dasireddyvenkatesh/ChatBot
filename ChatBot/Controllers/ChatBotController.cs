@@ -3,6 +3,7 @@ using ChatBot.Models;
 using ChatBot.Repoistory.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
 
 namespace ChatBot.Controllers
 {
@@ -59,7 +60,7 @@ namespace ChatBot.Controllers
             DateTime fromUserStatus = await _chatBotRepo.GetLastSeen(fromUserId);
             DateTime toUserStatus = await _chatBotRepo.GetLastSeen(toUserId);
 
-            bool statusOnline = fromUserStatus >= DateTime.Now.AddSeconds(-10) && toUserStatus >= DateTime.Now.AddSeconds(-10);
+            bool statusOnline = fromUserStatus >= DateTime.UtcNow.AddSeconds(-10) && toUserStatus >= DateTime.UtcNow.AddSeconds(-10);
 
             if (statusOnline)
             {
@@ -88,8 +89,17 @@ namespace ChatBot.Controllers
         }
 
         [Route("ChatDetails")]
-        public async Task<IActionResult> ChatDetails([FromBody] ChatDetailsRequestModel chatDetailsRequest)
+        public async Task<IActionResult> ChatDetails(int fromUserId, int toUserId)
         {
+
+            ChatDetailsRequestModel chatDetailsRequest = new ChatDetailsRequestModel()
+            {
+                FromUserId = fromUserId,
+                ToUserId = toUserId,
+                NewUser = false,
+            };
+
+
             string loginUserName = await _insertAndDuplicateCheck.DuplicateCheck(chatDetailsRequest);
 
             string toUserName = await _chatBotRepo.GetUserNameById(chatDetailsRequest.ToUserId);
@@ -102,6 +112,8 @@ namespace ChatBot.Controllers
             }
 
             var userDetails = await _chatDetails.GetChat(chatDetailsRequest.FromUserId, chatDetailsRequest.ToUserId, loginUserName);
+
+            var a = JsonSerializer.Serialize(userDetails);
 
             return View(userDetails);
         }

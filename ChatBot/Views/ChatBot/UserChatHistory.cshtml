@@ -18,12 +18,12 @@
 
         <ul id="chat-History">
 
-            @if(Model.Count == 1 && string.IsNullOrWhiteSpace(Model.First().UserName))
+@*             @if(Model.Count == 1 && string.IsNullOrWhiteSpace(Model.First().UserName))
             {
                 <p>Click on the + icon to find the users to start chatting.</p>
             }
             else
-            {
+            { *@
                 @foreach (var chat in Model)
                 {
                     <li id="@chat.FromUserId,@chat.ToUserId">
@@ -45,7 +45,7 @@
                         </a>
                     </li>
                 }
-            }
+@*             } *@
         </ul>
     </div>
 

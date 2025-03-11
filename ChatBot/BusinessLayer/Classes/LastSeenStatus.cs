@@ -6,7 +6,7 @@ namespace ChatBot.BusinessLayer.Classes
     {
         public string Status(DateTime lastSeen)
         {
-            DateTime now = DateTime.Now;
+            DateTime now = DateTime.UtcNow;
 
             if (lastSeen >= now.AddSeconds(-10)) 
             {

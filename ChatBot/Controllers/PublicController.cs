@@ -53,7 +53,7 @@ namespace ChatBot.Controllers
                         Secure = true,
                         HttpOnly = true,
                         IsEssential = true,
-                        Expires = DateTime.Now.AddDays(30)
+                        Expires = DateTime.UtcNow.AddDays(30)
                     };
                     Response.Cookies.Append("MUID", userName, option);
 

@@ -51,7 +51,7 @@ function submitChatForm(fromUser, toUser) {
         input.value = value;
         return input;
     }
-
+    
     // Create hidden input fields for parameters
     form.appendChild(createHiddenInput('fromUserId', fromUser));
     form.appendChild(createHiddenInput('toUserId', toUser));

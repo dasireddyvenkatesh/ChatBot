@@ -310,3 +310,51 @@
     margin-top: -20px;
     cursor : pointer;
 }
+
+
+@media (max-width: 480px) {
+    #chatContainer {
+        width: 100%;
+        border-radius: 15px;
+    }
+
+    #sendButton {
+        padding: 4px 12px;
+    }
+
+    #messageInput {
+        padding: 4px;
+    }
+
+    .popup-content {
+        width: 90%;
+        border-radius: 15px;
+    }
+
+    .popup-content-image {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    #chatContainer {
+        width: 90%;
+        border-radius: 30px;
+    }
+
+    #sendButton {
+        padding: 6px 16px;
+    }
+
+    #messageInput {
+        padding: 6px;
+    }
+
+    .popup-content {
+        border-radius: 30px;
+    }
+
+    .popup-content-image {
+        padding: 15px;
+    }
+}
