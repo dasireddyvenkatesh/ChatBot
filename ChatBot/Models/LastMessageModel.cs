@@ -4,7 +4,7 @@
     {
         public bool StatusChange {  get; set; }
 
-        public int LatestMessageId { get; set; }
+        public string LatestMessageId { get; set; } = string.Empty;
 
         public string LatestMessage { get; set; } = string.Empty;
 

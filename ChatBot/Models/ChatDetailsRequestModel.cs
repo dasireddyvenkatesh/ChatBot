@@ -2,8 +2,8 @@
 {
     public class ChatDetailsRequestModel
     {
-        public int FromUserId { get; set; }
-        public int ToUserId { get; set; }
+        public string FromUserId { get; set; } = string.Empty;
+        public string ToUserId { get; set; } = string.Empty;
         public bool NewUser { get; set; }
     }
 }

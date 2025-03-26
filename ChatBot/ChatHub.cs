@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using ChatBot.Repoistory.Interfaces;
+using Dapper;
 using Humanizer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
@@ -9,52 +10,39 @@ namespace ChatBot
     public class ChatHub : Hub
     {
         private readonly IConfiguration _configuration;
+        private readonly IChatBotRepo _chatBotRepo;
 
-        public ChatHub(IConfiguration configuration)
+        public ChatHub(IConfiguration configuration, IChatBotRepo chatBotRepo)
         {
             _configuration = configuration;
+            _chatBotRepo = chatBotRepo;
         }
 
-        public async Task<bool> GetUserStatus(int toUserId)
+        public async Task<bool> GetUserStatus(string toUserId)
         {
-            DateTime userLastStatus = await GetLastSeen(toUserId);
+            DateTime userLastStatus = await _chatBotRepo.GetLastSeen(toUserId);
 
             return userLastStatus >= DateTime.UtcNow.AddSeconds(-10);
         }
 
-        public async Task<bool> GetUserActiveStatus(int fromUserId, int toUserId)
+        public async Task<bool> GetUserActiveStatus(string fromUserId, string toUserId)
         {
-            DateTime fromUserStatus = await GetLastSeen(fromUserId);
-            DateTime toUserStatus = await GetLastSeen(toUserId);
+            DateTime fromUserStatus = await _chatBotRepo.GetLastSeen(fromUserId);
+            DateTime toUserStatus = await _chatBotRepo.GetLastSeen(toUserId);
 
             return fromUserStatus >= DateTime.UtcNow.AddSeconds(-10) && toUserStatus >= DateTime.UtcNow.AddSeconds(-10);
         }
 
-        public async Task<string> LastSeenStatus(int userId)
+        public async Task<string> LastSeenStatus(string userId)
         {
-            DateTime lastSeenDate = await GetLastSeen(userId);
+            DateTime lastSeenDate = await _chatBotRepo.GetLastSeen(userId);
             string lastseen = lastSeenDate.Humanize(utcDate: true);
             return lastseen;
         }
 
-        private async Task<DateTime> GetLastSeen(int userId)
+        public async Task UpdateSeenStatus(string messageId)
         {
-            string dbConnection = _configuration.GetConnectionString("DefaultConnection");
-
-            using (SqlConnection connection = new SqlConnection(dbConnection))
-            {
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                dynamicParameters.Add("@userId", userId);
-
-                var result = await connection.QueryFirstAsync<DateTime>("LastSeenStatus", dynamicParameters, commandType: CommandType.StoredProcedure);
-
-                return result;
-            }
-        }
-
-        public async Task UpdateSeenStatus(int messageId)
-        {
-            await UpdateLastSeen(messageId);
+            //await UpdateLastSeen(messageId);
 
         }
 

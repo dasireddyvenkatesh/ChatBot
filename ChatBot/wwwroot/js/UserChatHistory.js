@@ -1,11 +1,11 @@
-﻿let selectedValue = 0;
+﻿let selectedValue = "";
 var statusChangeBool = true;
 function showPopup() {
     document.getElementById("popupContainer").style.display = "flex";
     $('.dropdownSelection').select2();
 
     $('.dropdownSelection').on('select2:select', function (e) {
-        selectedValue = parseInt(e.params.data.id);
+        selectedValue = e.params.data.id;
     });
 }
 
@@ -14,25 +14,49 @@ function closePopup() {
 }
 
 function redirectToPage(event) {
-
     if (selectedValue == 0) {
         event.preventDefault();
         return;
     }
 
+    // Construct data object to be sent
     const data = {
         fromUserId: fromUserId,
         toUserId: selectedValue,
         newUser: true
     };
 
-    fetch('/ChatDetails', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
+    // Create a hidden form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/ChatDetails';  // The action URL for the POST request
+
+    // Create hidden input fields for each of the data items
+    const fromUserIdInput = document.createElement('input');
+    fromUserIdInput.type = 'hidden';
+    fromUserIdInput.name = 'fromUserId';
+    fromUserIdInput.value = fromUserId;
+
+    const toUserIdInput = document.createElement('input');
+    toUserIdInput.type = 'hidden';
+    toUserIdInput.name = 'toUserId';
+    toUserIdInput.value = selectedValue;
+
+    const newUserInput = document.createElement('input');
+    newUserInput.type = 'hidden';
+    newUserInput.name = 'newUser';
+    newUserInput.value = 'true';
+
+    // Append the hidden input fields to the form
+    form.appendChild(fromUserIdInput);
+    form.appendChild(toUserIdInput);
+    form.appendChild(newUserInput);
+
+    // Append the form to the body
+    document.body.appendChild(form);
+
+    // Submit the form
+    form.submit();
 
     closePopup();
 }
@@ -75,12 +99,16 @@ setInterval(async function () {
 
             const lastMessageId = list.querySelector("#lastMessageId").value;
             const idArray = list.id.split(',');
-            const apiUrl = `/LastMessageStatus?fromUserId=${idArray[0]}&toUserId=${idArray[1]}&lastMessageId=${lastMessageId}`;
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            LastSeenUpdate(list.id, data.lastSeenStatus, data.lastSeenStatusColor);
-            if (data.statusChange) {
-                moveLiToTop(list.id, data.latestMessageId, data.latestMessage);
+
+            if (idArray != undefined && idArray[0] != undefined && idArray[1] != undefined && lastMessageId != undefined) {
+
+                const apiUrl = `/LastMessageStatus?fromUserId=${idArray[0]}&toUserId=${idArray[1]}&lastMessageId=${lastMessageId}`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                LastSeenUpdate(list.id, data.lastSeenStatus, data.lastSeenStatusColor);
+                if (data.statusChange) {
+                    moveLiToTop(list.id, data.latestMessageId, data.latestMessage);
+                }
             }
         }
 

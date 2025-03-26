@@ -4,6 +4,7 @@ using ChatBot.BusinessLayer.Interfaces;
 using ChatBot.Repoistory.Classes;
 using ChatBot.Repoistory.Interfaces;
 using Microsoft.AspNetCore.Http.Connections;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,13 @@ builder.Services.AddSignalR(options =>
     options.ClientTimeoutInterval = TimeSpan.FromHours(4);
     options.HandshakeTimeout = TimeSpan.FromHours(1);
     options.KeepAliveInterval = TimeSpan.FromHours(2);
+});
+
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    // Fetch MongoDB connection string from configuration
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    return new MongoClient(connectionString); 
 });
 
 builder.Services.AddTransient<ILastSeenStatus, LastSeenStatus>();

@@ -12,9 +12,9 @@ namespace ChatBot.BusinessLayer.Classes
             _chatBotRepo = chatBotRepo;
         }
 
-        public async Task<int> SaveMessage(int fromUserId, int toUserId, string? message, string? imageBytes)
+        public async Task<string> SaveMessage(string fromUserId, string toUserId, string? message, string? imageBytes)
         {
-            int result = await _chatBotRepo.SaveHistory(fromUserId, toUserId, message, imageBytes);
+            string result = await _chatBotRepo.SaveHistory(fromUserId, toUserId, message, imageBytes);
 
             return result;
         }

@@ -451,7 +451,7 @@ function appendChatBubble(message, time, isCurrentUser, messageStatus, messageId
 
 function loadChatHistory(chatHistoryList) {
     let lastDate = null;
-
+    debugger;
     chatHistoryList.forEach(chat => {
         if (chat.messageDate !== lastDate) {
             const messagesList = document.getElementById("messagesList");
@@ -494,6 +494,7 @@ function loadChatHistory(chatHistoryList) {
 }
 
 window.onload = function () {
+    debugger;
     loadChatHistory(model);
 
 };

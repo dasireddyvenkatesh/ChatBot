@@ -36,9 +36,18 @@ namespace ChatBot.BusinessLayer.Classes
 
             if (histories.Any())
             {
-                string existingChatUsers = string.Join(",", histories.Select(x => x.UserName).Append(userName));
+                if(histories.Count == 1 && string.IsNullOrWhiteSpace(histories.First().UserName))
+                {
+                    histories.First().ExistingUsers = await _chatBot.ExistingUsers(userName);
+                }
+                else
+                {
+                    string existingChatUsers = string.Join(",", histories.Select(x => x.UserName).Append(userName));
 
-                histories.First().ExistingUsers = await _chatBot.ExistingUsers(existingChatUsers);
+                    histories.First().ExistingUsers = await _chatBot.ExistingUsers(existingChatUsers);
+                }
+                
+
             }
 
             return histories;

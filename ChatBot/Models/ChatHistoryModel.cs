@@ -2,9 +2,9 @@
 {
     public class ChatHistoryModel
     {
-        public int FromUserId {  get; set; }
+        public string FromUserId { get; set; } = string.Empty;
 
-        public int ToUserId { get; set; }
+        public string ToUserId { get; set; } = string.Empty;
 
         public string UserName {  get; set; } = string.Empty;
 
@@ -12,13 +12,13 @@
 
         public string LoginUserName {  get; set; } = string.Empty;
 
-        public int UnreadMessages { get; set; }
+        public long UnreadMessages { get; set; }
 
-        public Dictionary<int, string> ExistingUsers { get; set; } = new Dictionary<int, string>();
+        public Dictionary<string, string> ExistingUsers { get; set; } = new Dictionary<string, string>();
 
         public DateTime LastSeen { get; set; }
 
-        public int LastMessageId {  get; set; }
+        public string LastMessageId { get; set; } = string.Empty;
 
         public string LastStatus { get; set; } = string.Empty;
 

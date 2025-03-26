@@ -8,15 +8,15 @@ namespace ChatBot.Repoistory.Interfaces
 
         public Task<string> NewUser(string userName, string email, string passWord, string deviceIp);
 
-        public Task<string?> ValidateUserName(string userName);
+        public Task<string> ValidateUserName(string userName);
 
-        public Task<Dictionary<int, string>> ExistingUsers(string existingChatUsers);
+        public Task<Dictionary<string, string>> ExistingUsers(string existingChatUsers);
 
-        public Task<bool> InsertHistory(int fromUserId, int toUserId);
+        public Task<bool> InsertHistory(string fromUserId, string toUserId);
 
-        public Task<int> LastMessageId(int fromUserId, int toUserId);
+        public Task<string> LastMessageId(string fromUserId, string toUserId);
 
-        public Task<DateTime> GetLastSeen(int userId);
+        public Task<DateTime> GetLastSeen(string userId);
 
         public Task<bool> UpdateEmailOtp(string email, int emailOtp);
 
@@ -24,20 +24,20 @@ namespace ChatBot.Repoistory.Interfaces
 
         public Task<string> ResendEmailOtp(string email);
 
-        public Task UpdateLastSeen(int userId);
+        public Task UpdateLastSeen(string userId);
 
-        public Task<LastMessageModel> LastMessageStatus(int fromUserId, int toUserId, int lastMessageId);
+        public Task<LastMessageModel> LastMessageStatus(string fromUserId, string toUserId, string lastMessageId);
 
-        public Task<int> SaveHistory(int fromUserId, int toUserId, string? message, string? imageBytes);
+        public Task<string> SaveHistory(string fromUserId, string toUserId, string? message, string? imageBytes);
 
-        public Task<List<ChatDetailsModel>> History(int fromChatId, int toChatId);
+        public Task<List<ChatDetailsModel>> History(string fromChatId, string toChatId);
 
-        public Task<MessageDetailsModel> MessageDetails(int messageId);
+        public Task<MessageDetailsModel> MessageDetails(string messageId);
 
-        public Task<string> Base64Image(int messageId);
+        public Task<string> Base64Image(string messageId);
 
-        public Task<string> GetUserNameById(int userId);
+        public Task<string> GetUserNameById(string userId);
 
-        public Task<int> GetIdByUsername(string userName);
+        public Task<string> GetIdByUsername(string userName);
     }
 }

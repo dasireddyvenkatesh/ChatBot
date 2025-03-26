@@ -26,8 +26,8 @@
             { *@
                 @foreach (var chat in Model)
                 {
-                    <li id="@chat.FromUserId,@chat.ToUserId">
-                        <a onclick="submitChatForm(@chat.FromUserId, @chat.ToUserId)">
+                <li id="@chat.FromUserId-@chat.ToUserId">
+                    <a onclick="submitChatForm('@chat.FromUserId', '@chat.ToUserId')">
                             <h2>@chat.UserName</h2>
                             <span id="chat-LastMessage" style="font-weight: @(chat.UnreadMessages > 0 ? "bold" : "normal")">@chat.Message</span>
                             @if (!string.IsNullOrEmpty(chat.UserPhoto))
@@ -76,9 +76,9 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/jquery/dist/select2.min.js"></script>
     <script>
-        const fromUserId = @Model.First().FromUserId;
+        let fromUserId = '@Model.First().FromUserId';
     </script>
     <script src="~/js/UserChatHistory.js"></script>
-    <script src="~/js/removeText.js"></script>
+@*     <script src="~/js/removeText.js"></script> *@
 </body>
 </html>

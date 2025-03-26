@@ -4,6 +4,6 @@ namespace ChatBot.BusinessLayer.Interfaces
 {
     public interface IGetChatDetails
     {
-        public Task<List<ChatDetailsModel>> GetChat(int fromUserId, int toUserId, string loginUserName);
+        public Task<List<ChatDetailsModel>> GetChat(string fromUserId, string toUserId, string loginUserName);
     }
 }

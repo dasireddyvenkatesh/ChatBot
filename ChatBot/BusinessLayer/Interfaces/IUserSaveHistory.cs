@@ -2,6 +2,6 @@
 {
     public interface IUserSaveHistory
     {
-        public Task<int> SaveMessage(int fromUserId, int toUserId, string? message, string? imageBytes);
+        public Task<string> SaveMessage(string fromUserId, string toUserId, string? message, string? imageBytes);
     }
 }

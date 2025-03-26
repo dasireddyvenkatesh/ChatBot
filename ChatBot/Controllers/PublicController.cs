@@ -39,7 +39,7 @@ namespace ChatBot.Controllers
         public async Task<IActionResult> Login(string userName, string passWord)
         {
 
-            string? userPw = await _chatBotRepo.ValidateUserName(userName);
+            string userPw = await _chatBotRepo.ValidateUserName(userName);
 
             if (!string.IsNullOrEmpty(userPw))
             {

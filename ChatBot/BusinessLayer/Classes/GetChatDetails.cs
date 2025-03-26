@@ -13,7 +13,7 @@ namespace ChatBot.BusinessLayer.Classes
             _chatBotRepo = chatBotRepo;
         }
 
-        public async Task<List<ChatDetailsModel>> GetChat(int fromUserId, int toUserId, string loginUserName)
+        public async Task<List<ChatDetailsModel>> GetChat(string fromUserId, string toUserId, string loginUserName)
         {
             var chatDetails = await _chatBotRepo.History(fromUserId, toUserId);
 

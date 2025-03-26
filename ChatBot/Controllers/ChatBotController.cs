@@ -35,7 +35,7 @@ namespace ChatBot.Controllers
         }
 
         [Route("MessageDetails")]
-        public async Task<IActionResult> MessageDetails(int messageId)
+        public async Task<IActionResult> MessageDetails(string messageId)
         {
             var messageDetails = await _chatBotRepo.MessageDetails(messageId);
 
@@ -43,7 +43,7 @@ namespace ChatBot.Controllers
         }
 
         [Route("ImageBase")]
-        public async Task<string> ImageBase(int messageId)
+        public async Task<string> ImageBase(string messageId)
         {
             string base64 = await _chatBotRepo.Base64Image(messageId);
 
@@ -51,7 +51,7 @@ namespace ChatBot.Controllers
         }
 
         [Route("LastMessageStatus")]
-        public async Task<IActionResult> LastMessageStatus(int fromUserId, int toUserId, int lastMessageId)
+        public async Task<IActionResult> LastMessageStatus(string fromUserId, string toUserId, string lastMessageId)
         {
             await _chatBotRepo.UpdateLastSeen(fromUserId);
 
@@ -78,7 +78,7 @@ namespace ChatBot.Controllers
 
             var history = await _chatHistory.History(userName);
 
-            if (history.Count == 1 && history.First().FromUserId == 0)
+            if (history.Count == 1 && history.First().FromUserId == null)
             {
                 Response.Cookies.Delete("MUID");
 
@@ -89,16 +89,8 @@ namespace ChatBot.Controllers
         }
 
         [Route("ChatDetails")]
-        public async Task<IActionResult> ChatDetails(int fromUserId, int toUserId)
+        public async Task<IActionResult> ChatDetails(ChatDetailsRequestModel chatDetailsRequest)
         {
-
-            ChatDetailsRequestModel chatDetailsRequest = new ChatDetailsRequestModel()
-            {
-                FromUserId = fromUserId,
-                ToUserId = toUserId,
-                NewUser = false,
-            };
-
 
             string loginUserName = await _insertAndDuplicateCheck.DuplicateCheck(chatDetailsRequest);
 
@@ -119,20 +111,20 @@ namespace ChatBot.Controllers
         }
 
         [Route("SendMessage")]
-        public async Task SendMessage(int fromUserId, int toUserId, string message, IFormFile imageFile)
+        public async Task SendMessage(string fromUserId, string toUserId, string message, IFormFile imageFile)
         {
 
             if (imageFile != null && imageFile.Length > 0)
             {
 
                 string imageBase64 = _compressImage.Compress(imageFile);
-                int messageId = await _userSaveHistory.SaveMessage(fromUserId, toUserId, null, imageBase64);
+                string messageId = await _userSaveHistory.SaveMessage(fromUserId, toUserId, null, imageBase64);
                 await _hubContext.Clients.All.SendAsync("Receive", fromUserId, toUserId, null, imageBase64, messageId);
 
             }
             else
             {
-                int messageId = await _userSaveHistory.SaveMessage(fromUserId, toUserId, message, null);
+                string messageId = await _userSaveHistory.SaveMessage(fromUserId, toUserId, message, null);
                 await _hubContext.Clients.All.SendAsync("Receive", fromUserId, toUserId, message, null, messageId);
             }
 

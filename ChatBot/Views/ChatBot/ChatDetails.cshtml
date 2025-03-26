@@ -58,8 +58,8 @@
 </html>
 <script>
     var model = @Html.Raw(Json.Serialize(Model));
-    const fromUser = @Model.First().FromUserId;
-    const toUser = @Model.First().ToUserId;
+    const fromUser = '@Model.First().FromUserId';
+    const toUser = '@Model.First().ToUserId';
 </script>
 <script src="~/js/ChatDetails.js"></script>
-<script src="~/js/removeText.js"></script>
+@* <script src="~/js/removeText.js"></script> *@
