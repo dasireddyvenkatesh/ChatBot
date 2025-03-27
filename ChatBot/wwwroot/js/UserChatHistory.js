@@ -19,13 +19,6 @@ function redirectToPage(event) {
         return;
     }
 
-    // Construct data object to be sent
-    const data = {
-        fromUserId: fromUserId,
-        toUserId: selectedValue,
-        newUser: true
-    };
-
     // Create a hidden form
     const form = document.createElement('form');
     form.method = 'POST';

@@ -28,11 +28,11 @@ namespace ChatBot.BusinessLayer.Classes
 
             }
 
-            foreach (var history in histories)
-            {
-                history.LastStatus = _lastSeenStatus.Status(history.LastSeen);
-                history.LastMessageId = await _chatBot.LastMessageId(history.FromUserId, history.ToUserId);
-            }
+            //foreach (var history in histories)
+            //{
+            //    history.LastStatus = _lastSeenStatus.Status(history.LastSeen);
+            //    //history.LastMessageId = await _chatBot.LastMessageId(history.FromUserId, history.ToUserId);
+            //}
 
             if (histories.Any())
             {

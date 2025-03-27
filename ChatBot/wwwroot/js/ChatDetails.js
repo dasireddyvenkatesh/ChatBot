@@ -494,7 +494,6 @@ function loadChatHistory(chatHistoryList) {
 }
 
 window.onload = function () {
-    debugger;
     loadChatHistory(model);
 
 };

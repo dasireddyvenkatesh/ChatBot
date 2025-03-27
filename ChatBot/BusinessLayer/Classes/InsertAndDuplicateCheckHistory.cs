@@ -20,7 +20,7 @@ namespace ChatBot.BusinessLayer.Classes
                 await _chatBotRepo.InsertHistory(detailsRequestModel.FromUserId, detailsRequestModel.ToUserId);
             }
 
-            var loginUserName = await _chatBotRepo.GetUserNameById(detailsRequestModel.FromUserId);
+            var loginUserName = await _chatBotRepo.GetUserNameById(detailsRequestModel.ToUserId);
 
             return loginUserName;
         }

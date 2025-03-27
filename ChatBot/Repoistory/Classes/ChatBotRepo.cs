@@ -68,6 +68,16 @@ namespace ChatBot.Repoistory.Classes
                                     .GroupBy(m => m.ChatHistoryId)
                                     .ToDictionary(g => g.Key, g => g.First());
 
+
+            var latestIds = chatHistories.Where(x => x.ChatFromUserId == user.Id.ToString()).ToList();
+
+            if(latestIds != null && latestIds.Count != 0)
+            {
+
+                chatHistories.RemoveAll(h => latestIds.Any(id => id.Id == h.Id));
+
+            }
+
             List<ChatHistoryModel> chatHistoryList = new List<ChatHistoryModel>();
 
             foreach (var history in chatHistories)
@@ -78,12 +88,12 @@ namespace ChatBot.Repoistory.Classes
                 if (latestMessage == null)
                     continue;
 
-                // Determine the from/to user
-                var fromUserId = history.ChatFromUserId == chatUserId ? history.ChatToUserId : history.ChatFromUserId;
-                var toUserId = history.ChatToUserId == chatUserId ? history.ChatFromUserId : history.ChatToUserId;
+                //// Determine the from/to user
+                //var fromUserId = history.ChatFromUserId == chatUserId ? history.ChatToUserId : history.ChatFromUserId;
+                //var toUserId = history.ChatToUserId == chatUserId ? history.ChatFromUserId : history.ChatToUserId;
 
                 // Fetch user details for the "FromUserId"
-                var fromUser = _newUserCollection.Find(u => u.Id == new ObjectId(fromUserId)).FirstOrDefault();
+                var fromUser = _newUserCollection.Find(u => u.Id == new ObjectId(history.ChatFromUserId)).FirstOrDefault();
 
                 if (fromUser == null)
                     continue;
@@ -94,17 +104,18 @@ namespace ChatBot.Repoistory.Classes
                 // Create the ChatHistoryModel
                 chatHistoryList.Add(new ChatHistoryModel
                 {
-                    FromUserId = fromUserId, // Assuming user IDs are integers, adjust if needed
-                    ToUserId = toUserId, // Same here for ToUserId
+                    FromUserId = history.ChatFromUserId, 
+                    ToUserId = history.ChatToUserId, 
                     UserName = fromUser.ChatUserName,
-                    Message = latestMessage.ChatMessage ?? "Image", // Fallback to "Image" if message is null or empty
-                    LoginUserName = userName, // The current logged-in user
+                    Message = latestMessage.ChatMessage ?? "Image",
+                    LoginUserName = userName, 
                     UnreadMessages = unreadMessagesCount,
                     LastSeen = fromUser.LastSeen,
-                    LastMessageId = latestMessage.Id.ToString(), // Assuming you have a ChatMessageId field in your message collection
-                    LastStatus = latestMessage.MessageStatus,
+                    LastMessageId = latestMessage.Id.ToString(), 
+                    LastStatus = Status(fromUser.LastSeen),
                     UserPhoto = fromUser.ChatUserPhoto
                 });
+
             }
 
             return chatHistoryList.OrderByDescending(c => c.LastSeen).ToList();
@@ -122,6 +133,24 @@ namespace ChatBot.Repoistory.Classes
             //    return (List<ChatHistoryModel>)history;
             //}
 
+        }
+
+        private string Status(DateTime lastSeen)
+        {
+            DateTime now = DateTime.UtcNow;
+
+            if (lastSeen >= now.AddSeconds(-10))
+            {
+                return "Online";
+            }
+            else if (lastSeen.Date == now.Date)
+            {
+                return "Away";
+            }
+            else
+            {
+                return "Offline";
+            }
         }
 
         public async Task<string> NewUser(string userName, string email, string passWord, string deviceIp)
@@ -573,37 +602,48 @@ namespace ChatBot.Repoistory.Classes
                                 Builders<ChatHistoryEntity>.Filter.Eq(x => x.ChatToUserId, toUserId)
             );
 
-            var history = await _chatHistoryCollection.Find(historyFilter).ToListAsync();
+            //var history = await _chatHistoryCollection.Find(historyFilter).ToListAsync();
 
-            if (history == null || history.Count == 0)
-            {
-                return new List<ChatDetailsModel>();
-            }
+            var chatHistories = _chatHistoryCollection
+                    .Find(h => h.ChatFromUserId == fromUserId || h.ChatToUserId == fromUserId)
+                    .ToList();
+
+            //if (history == null || history.Count == 0)
+            //{
+            //    return new List<ChatDetailsModel>();
+            //}
 
             var distinctDates = await _chatMessagesCollection.Aggregate()
-                                .Match(Builders<ChatMessagesEntity>.Filter.In(
-                                    x => x.ChatHistoryId, history.Select(h => h.Id.ToString())))
-                                    .Group(x => x.TimeStamp.ToString("yyyy-MM-dd"), g => new { Date = g.Key })
-                                    .SortByDescending(x => x.Date)
-                                    .Limit(5)
-                                    .ToListAsync();
+                .Match(Builders<ChatMessagesEntity>.Filter.In(
+                    x => x.ChatHistoryId, chatHistories.Select(h => h.Id.ToString())))
+                .Group(x => new { Date = new DateTime(x.TimeStamp.Year, x.TimeStamp.Month, x.TimeStamp.Day) },
+                    g => new { Date = g.Key.Date })
+                .SortByDescending(x => x.Date)
+                .Limit(5)
+                .ToListAsync();
 
-            if(distinctDates.Count == 0)
+
+            if (distinctDates.Count == 0)
             {
                 return new List<ChatDetailsModel>();
             }
 
 
-            var dateList = distinctDates.Select(d => DateTime.Parse(d.Date)).ToList();
+            var dateList = distinctDates.Select(d => d.Date).ToList();
 
-            var messagesFilter = Builders<ChatMessagesEntity>.Filter.And(
-                Builders<ChatMessagesEntity>.Filter.In(x => x.ChatHistoryId, history.Select(h => h.Id.ToString())),
-                Builders<ChatMessagesEntity>.Filter.In(x => x.TimeStamp.Date, dateList)
-            );
+            // Create a filter to match messages that fall within each distinct date
+            var dateFilters = dateList.Select(date => Builders<ChatMessagesEntity>.Filter.And(
+                Builders<ChatMessagesEntity>.Filter.Gte(x => x.TimeStamp, date), // TimeStamp >= date
+                Builders<ChatMessagesEntity>.Filter.Lt(x => x.TimeStamp, date.AddDays(1)) // TimeStamp < date + 1 day
+            )).ToList();
+
+            // Combine all the date filters with an OR condition
+            var messagesFilter = Builders<ChatMessagesEntity>.Filter.Or(dateFilters);
 
             var messages = await _chatMessagesCollection.Find(messagesFilter)
-                                    .SortBy(x => x.TimeStamp)
-                                    .ToListAsync();
+                .SortBy(x => x.TimeStamp)
+                .ToListAsync();
+
 
             var user = await _newUserCollection.Find(x => x.Id.ToString() == toUserId).FirstOrDefaultAsync();
 
@@ -614,8 +654,8 @@ namespace ChatBot.Repoistory.Classes
                     MessageId = msg.Id.ToString(),
                     Status = msg.MessageStatus,
                     UserName = user.ChatUserName,
-                    FromUserId = msg.ChatHistoryId == fromUserId ? fromUserId : toUserId,
-                    ToUserId = msg.ChatHistoryId == fromUserId ? toUserId : fromUserId,
+                    FromUserId = chatHistories.Where(x =>x.Id.ToString() == msg.ChatHistoryId).Select(x =>x.ChatFromUserId).First(),
+                    ToUserId = chatHistories.Where(x =>x.Id.ToString() == msg.ChatHistoryId).Select(x =>x.ChatToUserId).First(),
                     Message = string.IsNullOrEmpty(msg.ChatMessage) ? "Image" : msg.ChatMessage,
                     DataContent = msg.ChatContent,
                     TimeStamp = msg.TimeStamp
