@@ -39,6 +39,17 @@ builder.Services.AddTransient<IRegisterVerifiedEmail, RegisterVerifiedEmail>();
 builder.Services.AddTransient<IResendEmailOtp, ResendEmailOtp>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", policy =>
+    {
+        policy.AllowAnyOrigin()       // Allows any origin
+              .AllowAnyMethod()       // Allows any HTTP method (GET, POST, etc.)
+              .AllowAnyHeader();      // Allows any header
+    });
+});
+
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
