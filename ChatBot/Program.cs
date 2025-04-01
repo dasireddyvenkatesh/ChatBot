@@ -77,4 +77,6 @@ app.UseEndpoints(endpoints =>
     });
 });
 
+app.UseCors("AllowAllOrigins");
+
 app.Run();
